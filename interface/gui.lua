@@ -169,6 +169,23 @@ function ui.main()
                 mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
             end
 
+            if ImGui.Button(string.format('Update\n     ' .. icons.FA_DOWNLOAD), BUTTON_SIZE, BUTTON_SIZE) then
+                os.execute('powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri \'https://raw.githubusercontent.com/shortbus-allstar/shm420/main/shm420.zip\' -OutFile \'' .. mq.luaDir .. '\\shm420.zip\' -UseBasicParsing"')
+             
+
+                local zipFilePath = mq.luaDir .. "\\shm420.zip"
+                local targetDir = mq.luaDir
+                local extractDir = mq.luaDir .. "\\shm420"
+                
+                -- Construct PowerShell command with Lua variables
+                local powershellCommand = 'powershell -ExecutionPolicy Bypass -File "' .. mq.luaDir .. '\\shm420\\utils\\update.ps1" ' .. '-zipFilePath "' .. zipFilePath .. '" ' .. '-targetDir "' .. targetDir .. '" ' .. '-extractDir "' .. extractDir .. '"'
+                
+                -- Execute the PowerShell script using os.execute
+                os.execute(powershellCommand)
+                
+                os.execute('del "' .. zipFilePath .. '"')
+            end
+
             ImGui.PopStyleColor()
 
             
