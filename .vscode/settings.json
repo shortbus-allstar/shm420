@@ -1,8 +1,0 @@
-{
-    "mq-defs.etag": "W/\"cb3ed3992135db79c571a89b620a879c78d13a638deea3e7b5962bfd5362ac92\"",
-    "Lua.workspace.library": [
-        "path/to/mq-definitions",
-        "path/to/macroquest/lua",
-        "c:\\Users\\Alex\\AppData\\Roaming\\Code\\User\\globalStorage\\zenithcodeforge.mq-defs\\file-downloader-downloads\\macroquest\\mq-definitions-master"
-    ]
-}
