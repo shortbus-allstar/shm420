@@ -547,7 +547,7 @@ function ui.main()
             ImGui.SameLine()
             ImGui.SetNextItemWidth(35)
             local inputTextBufferMedStart = tostring(state.config.General.MedStart)
-            local inputTextBufferTempMedStart = inputTextBufferMedStartauraS
+            local inputTextBufferTempMedStart = inputTextBufferMedStart
             local inputTextCallbackMedStart = function(inputText)
                 inputTextBufferTempMedStart = inputText
             end
