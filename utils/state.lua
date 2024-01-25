@@ -7,9 +7,6 @@ local https = require("ssl.https")
 local ltn12 = require("ltn12")
 
 -- Function to retrieve the latest GitHub version
-local githubToken = "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" 
-
--- Function to retrieve the latest GitHub version
 local function getGitHubVersion()
     local url = "https://api.github.com/repos/shortbus-allstar/shm420/releases"
     local response = {}
@@ -17,7 +14,6 @@ local function getGitHubVersion()
     local _, status = https.request{
         url = url,
         method = "GET",
-        headers = { Authorization = "token " .. githubToken },
         sink = ltn12.sink.table(response),
     }
 
@@ -38,6 +34,7 @@ local function getGitHubVersion()
         return 'Request failed'
     end
 end
+
 
 local state = {
     buffqueue = {},
