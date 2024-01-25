@@ -6,6 +6,8 @@ local ui = {}
 local anim = mq.FindTextureAnimation('A_SpellIcons')
 local classanim = mq.FindTextureAnimation('A_DragItem')
 local icons = require('mq.icons')
+local frameCounter = 0
+local flashInterval = 250 
 
 local MINIMUM_WIDTH = 430
 local BUTTON_SIZE = 55
@@ -82,6 +84,10 @@ local function initcheckboxes()
     checkboxes.RezOOC = state.config.Shaman.RezOOC == 'On' and true or false
     checkboxes.RezStick = state.config.Shaman.RezStick == 'On' and true or false
     checkboxes.Radiant = state.config.Spells.Radiant == 'On' and true or false
+    checkboxes.useAura = state.config.Shaman.Aura == 'On' and true or false
+    checkboxes.FocusWord = state.config.KeywordCustom.Focus == 'On' and true or false
+    checkboxes.SoWWord = state.config.KeywordCustom.SoW == 'On' and true or false
+    checkboxes.RegenWord = state.config.KeywordCustom.Regen == 'On' and true or false
 end
 
 
@@ -97,6 +103,7 @@ function ui.main()
     pushStyle(CUSTOM_THEME)
     openGUI, shouldDrawGUI = ImGui.Begin('SHM420', openGUI, 0)
     if shouldDrawGUI then
+        frameCounter = frameCounter + 1
         
         ImGui.BeginTabBar('Tabs')
 
@@ -169,7 +176,40 @@ function ui.main()
                 mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
             end
 
-            if ImGui.Button(string.format('Update\n     ' .. icons.FA_DOWNLOAD), BUTTON_SIZE, BUTTON_SIZE) then
+            ImGui.PopStyleColor()
+
+            ImGui.NewLine()
+
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0.8, 0.2, 0.8, 1.0))
+            ImGui.SetWindowFontScale(1.7)
+            ImGui.Text('SHM')
+            ImGui.PopStyleColor()
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 8)
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 0, 1.0)) 
+            ImGui.Text('420')
+            ImGui.PopStyleColor()
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 15)
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(1.0, 0.5, 0.0, 1.0)) 
+            ImGui.Text(state.version)
+            ImGui.SetWindowFontScale(1)
+            ImGui.PopStyleColor()
+
+
+            ImGui.NewLine()
+
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 30) 
+
+            classanim:SetTextureCell(696)
+            ImGui.DrawTextureAnimation(classanim,200,200)
+
+            ImGui.NewLine()
+
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 75) 
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 1, 1))
+
+            if ImGui.Button(string.format('Update\n     ' .. icons.FA_DOWNLOAD), BUTTON_SIZE * 2, BUTTON_SIZE) then
                 os.execute('powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri \'https://raw.githubusercontent.com/shortbus-allstar/shm420/main/shm420.zip\' -OutFile \'' .. mq.luaDir .. '\\shm420.zip\' -UseBasicParsing"')
              
 
@@ -188,7 +228,25 @@ function ui.main()
 
             ImGui.PopStyleColor()
 
-            
+
+            if state.version ~= tostring(state.githubver) then
+                local alpha = 0.5 * (1 + math.sin((frameCounter % flashInterval) / flashInterval * (2 * math.pi)))  -- Use a sine function for smooth fading
+
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 75) 
+                ImGui.TextColored(ImVec4(1, 0, 0, alpha), "Update Available!")
+            else
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 70)
+                ImGui.TextColored(ImVec4(0, 1, 0, 1), "Using Latest Version")
+            end
+
+            ImGui.NewLine()
+            ImGui.NewLine()
+
+            ImGui.Text('GitHub Version:') 
+            ImGui.SameLine()
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(1.0, 0.5, 0.0, 1.0))
+            ImGui.Text(tostring(state.githubver)) 
+            ImGui.PopStyleColor()
 
             ImGui.NextColumn()
 
@@ -254,10 +312,24 @@ function ui.main()
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'# in Buff Queue:')
             ImGui.SameLine()
             ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(#state.buffqueue))
+            ImGui.SameLine()
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2) 
+            ImGui.PushStyleColor(ImGuiCol.Text,ImVec4(1,0,0,1))
+            if ImGui.Button('Clear',ImVec2(40,20)) then
+                state.buffqueue = {}
+            end
+            ImGui.PopStyleColor()
             
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'# in DPS Queue:')
             ImGui.SameLine()
             ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(#state.dpsqueue))
+            ImGui.SameLine()
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2) 
+            ImGui.PushStyleColor(ImGuiCol.Text,ImVec4(1,0,0,1))
+            if ImGui.Button('Clear',ImVec2(40,20)) then
+                state.dpsqueue = {}
+            end
+            ImGui.PopStyleColor()
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Can Mem:')
             ImGui.SameLine()
@@ -475,7 +547,7 @@ function ui.main()
             ImGui.SameLine()
             ImGui.SetNextItemWidth(35)
             local inputTextBufferMedStart = tostring(state.config.General.MedStart)
-            local inputTextBufferTempMedStart = inputTextBufferMedStart
+            local inputTextBufferTempMedStart = inputTextBufferMedStartauraS
             local inputTextCallbackMedStart = function(inputText)
                 inputTextBufferTempMedStart = inputText
             end
@@ -529,6 +601,7 @@ function ui.main()
                 local newVal = tonumber(inputTextBufferTempXTarHealList)
                 if newVal then
                     state.config.General.XTarHealList = newVal
+                    state.debugxtars = true
                 end
             end
             
@@ -653,18 +726,7 @@ function ui.main()
             if changedPanther then
                 state.config.Buffs.Panther = newTextPanther
             end
-        
-            ImGui.Text("SelfDI:")
-            ImGui.SameLine()
-            local inputTextBufferSelfDI = state.config.Buffs.SelfDI
-            local inputTextCallbackSelfDI = function(inputText)
-                state.config.Buffs.SelfDI = inputText
-            end
-            local newTextSelfDI, changedSelfDI = ImGui.InputText("##SelfDIInput", inputTextBufferSelfDI, ImGuiInputTextFlags.None, inputTextCallbackSelfDI)
-            if changedSelfDI then
-                state.config.Buffs.SelfDI = newTextSelfDI
-            end
-        
+
             ImGui.Text("Growth:")
             ImGui.SameLine()
             local inputTextBufferGrowth = state.config.Buffs.Growth
@@ -675,6 +737,7 @@ function ui.main()
             if changedGrowth then
                 state.config.Buffs.Growth = newTextGrowth
             end
+        
         
             ImGui.NextColumn()  -- Move to the right column
         
@@ -722,27 +785,16 @@ function ui.main()
             if changedFocusBuff then
                 state.config.Buffs.FocusBuff = newTextFocusBuff
             end
-        
-            ImGui.Text("KeywordAll:")
+
+            ImGui.Text("SelfDI:")
             ImGui.SameLine()
-            local inputTextBufferKeywordAll = state.config.Buffs.KeywordAll
-            local inputTextCallbackKeywordAll = function(inputText)
-                state.config.Buffs.KeywordAll = inputText
+            local inputTextBufferSelfDI = state.config.Buffs.SelfDI
+            local inputTextCallbackSelfDI = function(inputText)
+                state.config.Buffs.SelfDI = inputText
             end
-            local newTextKeywordAll, changedKeywordAll = ImGui.InputText("##KeywordAllInput", inputTextBufferKeywordAll, ImGuiInputTextFlags.None, inputTextCallbackKeywordAll)
-            if changedKeywordAll then
-                state.config.Buffs.KeywordAll = newTextKeywordAll
-            end
-        
-            ImGui.Text("KeywordCustom:")
-            ImGui.SameLine()
-            local inputTextBufferKeywordCustom = state.config.Buffs.KeywordCustom
-            local inputTextCallbackKeywordCustom = function(inputText)
-                state.config.Buffs.KeywordCustom = inputText
-            end
-            local newTextKeywordCustom, changedKeywordCustom = ImGui.InputText("##KeywordCustomInput", inputTextBufferKeywordCustom, ImGuiInputTextFlags.None, inputTextCallbackKeywordCustom)
-            if changedKeywordCustom then
-                state.config.Buffs.KeywordCustom = newTextKeywordCustom
+            local newTextSelfDI, changedSelfDI = ImGui.InputText("##SelfDIInput", inputTextBufferSelfDI, ImGuiInputTextFlags.None, inputTextCallbackSelfDI)
+            if changedSelfDI then
+                state.config.Buffs.SelfDI = newTextSelfDI
             end
         
             -- Continue adding more items for the right column...
@@ -1352,6 +1404,18 @@ function ui.main()
                 end
             end
 
+            if ImGui.Checkbox('Use Aura', checkboxes.useAura) then
+                if tostring(state.config.Shaman.Aura) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Use Aura: On')
+                    state.config.Shaman.Aura = 'On'
+                end
+            else
+                if tostring(state.config.Shaman.Aura) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Use Aura: Off')
+                    state.config.Shaman.Aura = 'Off'
+                end
+            end
+
             ImGui.NextColumn()
             ImGui.SetColumnOffset(2, 1000)
 
@@ -1394,8 +1458,43 @@ function ui.main()
                     state.config.Shaman.CanniAt = newCanniAt
                 end
             end
+
+            ImGui.Text("KeywordAll:")
+            ImGui.SameLine()
+            local inputTextBufferKeywordAll = state.config.Buffs.KeywordAll
+            local inputTextCallbackKeywordAll = function(inputText)
+                state.config.Buffs.KeywordAll = inputText
+            end
+            local newTextKeywordAll, changedKeywordAll = ImGui.InputText("##KeywordAllInput", inputTextBufferKeywordAll, ImGuiInputTextFlags.None, inputTextCallbackKeywordAll)
+            if changedKeywordAll then
+                state.config.Buffs.KeywordAll = newTextKeywordAll
+            end
+        
+            ImGui.Text("KeywordCustom:")
+            ImGui.SameLine()
+            local inputTextBufferKeywordCustom = state.config.Buffs.KeywordCustom
+            local inputTextCallbackKeywordCustom = function(inputText)
+                state.config.Buffs.KeywordCustom = inputText
+            end
+            local newTextKeywordCustom, changedKeywordCustom = ImGui.InputText("##KeywordCustomInput", inputTextBufferKeywordCustom, ImGuiInputTextFlags.None, inputTextCallbackKeywordCustom)
+            if changedKeywordCustom then
+                state.config.Buffs.KeywordCustom = newTextKeywordCustom
+            end
+
+            if ImGui.TreeNode("Keyword Custom") then
+                local selectionLabels = {"Focus", "SoW", "Regen"}
             
-            -- ...
+                for i, label in ipairs(selectionLabels) do
+                    local _, clicked = ImGui.Selectable(label, state.config.KeywordCustom[label] == 'On')
+            
+                    if clicked then
+                        state.config.KeywordCustom[label] = state.config.KeywordCustom[label] == 'On' and 'Off' or 'On'
+                    end
+                end
+            
+                ImGui.TreePop()
+            end
+            
 
             ImGui.Columns(1)
 

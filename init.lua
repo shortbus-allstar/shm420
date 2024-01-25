@@ -12,9 +12,12 @@ local buffs = require('routines.buffs')
 local queueAbility = require('utils.queue')
 local debuff = require('routines.debuff')
 local combat = require('routines.combat')
-local config = state.config
 local dps = require('routines.dps')
 local ui = require('interface.gui')
+local PackageMan = require('mq/PackageMan')
+PackageMan.Require('lua-cjson','cjson')
+PackageMan.Require('luasec','ssl')
+PackageMan.Require('luasocket','ltn12')
 
 
 state.updateLoopState()
@@ -57,6 +60,12 @@ local function main()
     while true do
         state.updateLoopState()
         write.Trace('New Loop')
+        if state.debugxtars then lib.debugxtars() state.debugxtars = false end
+        if tostring(state.config.Shaman.Aura) == 'On' and not mq.TLO.Me.Aura('1')() then 
+            mq.cmd('/aa act Pact of the Wolf') 
+            print('\ay[\amSHM\ag420\ay]\am:\at Activating \amPact of the Wolf')
+            mq.delay(750) 
+        end
         if state.dead == true then 
             mq.doevents('zoned')
             mq.delay(100)

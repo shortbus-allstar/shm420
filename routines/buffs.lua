@@ -6,6 +6,8 @@ local lib = require('utils.lib')
 local Write = require('utils.Write')
 local M = {}
 
+local starttime = mq.gettime() - 60000
+
 local function constructLongBuffsTable()
     return {
         focus = mq.TLO.Spell(state.config.Buffs.Focus).RankName(),
@@ -48,21 +50,22 @@ function M.checkShortBuffs()
     elseif not mq.TLO.Me.Buff("Champion")() and mq.TLO.Cast.Ready("Champion")() and tostring(state.config.Shaman.Champion) == 'On' then
         queueAbility(mq.TLO.Spell("Champion").ID(),'spell')
         return
-    elseif mq.TLO.DanNet(tank.Name()).O(sloth)() and mq.TLO.DanNet(tank.Name()).O(sloth)() == 'NULL' and tostring(state.config.Shaman.SlothTank) == 'On' and tank.ID() ~= 0 and tank.Type() ~= 'Corpse' and tank.Distance3D() < 100 then
+    elseif tostring(tank) ~= 'NULL' and mq.TLO.DanNet(tank.Name()).O(sloth)() and mq.TLO.DanNet(tank.Name()).O(sloth)() == 'NULL' and tostring(state.config.Shaman.SlothTank) == 'On' and tank.ID() ~= 0 and tank.Type() ~= 'Corpse' and tank.Distance3D() < 100 then
         queueAbility(mq.TLO.Spell(mq.TLO.Spell(state.config.Buffs.Sloth).RankName()).ID(),'spell',tank.ID(),'buff')
         return
-    elseif tostring(state.config.Shaman.WildGrowthTank) == 'On' and mq.TLO.Cast.Ready(mq.TLO.Spell(tostring(state.config.Buffs.Growth)).RankName())() and tank.ID() ~= 0 then
+    elseif tostring(tank) ~= 'NULL' and tostring(state.config.Shaman.WildGrowthTank) == 'On' and mq.TLO.Cast.Ready(mq.TLO.Spell(tostring(state.config.Buffs.Growth)).RankName())() and tank.ID() ~= 0 and tank.Distance3D() < 100 and tank.Type() ~= 'Corpse' then
         queueAbility(mq.TLO.Spell(mq.TLO.Spell(state.config.Buffs.Growth).RankName()).ID(),'spell',tank.ID(),'buff')
         return
-    elseif not mq.TLO.DanNet(tank.Name()).O(sloth)() and tostring(state.config.Shaman.SlothTank) == 'On' and slothTimer:timerExpired() and tank.ID() ~= 0 and tank.Type() ~= 'Corpse' and tank.Distance3D() < 100 then 
-        mq.cmd('/squelch /mqt id %s',tank.ID())
-        mq.delay(300)
+    elseif tostring(tank) ~= 'NULL' and not mq.TLO.DanNet(tank.Name()).O(sloth)() and tostring(state.config.Shaman.SlothTank) == 'On' and (mq.gettime() - starttime) > 60000 and tank.ID() ~= 0  and tank.Type() ~= 'Corpse' and tank.Distance3D() < 100 then 
+        mq.cmdf('/squelch /mqt id %s',tank.ID())
+        mq.delay(400)
         if not mq.TLO.Target.Buff(mq.TLO.Spell(tostring(state.config.Buffs.Sloth)).RankName())() then
             queueAbility(mq.TLO.Spell(mq.TLO.Spell(state.config.Buffs.Sloth).RankName()).ID(),'spell',tank.ID(),'buff')
         end
+        starttime = mq.gettime()
         return
     elseif not mq.TLO.Me.Buff(tostring(state.config.Buffs.Panther))() and tostring(state.config.Shaman.Panther) == 'On' and mq.TLO.Me.CombatState() == 'COMBAT' then
-        queueAbility(mq.TLO.Spell(mq.TLO.Spell(state.config.Buffs.Panther).RankName()).ID(),'spell')
+        queueAbility(mq.TLO.Spell(state.config.Buffs.Panther).RankName.ID(),'spell')
     end
 end
 
@@ -117,20 +120,20 @@ function M.checkBuffQueue()
 
     for i = 1, grpSize do
         local toon = mq.TLO.Group.Member(i).Name()
-        if mq.TLO.DanNet(toon).O(focus)() and mq.TLO.DanNet(toon).O(focus)() == 'NULL' and tostring(state.config.Shaman.Focus) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Class.ShortName() ~= 'CLR' and mq.TLO.Group.Member(i).Class.ShortName() ~= 'WIZ' then
+        if mq.TLO.DanNet(toon).O(focus)() and mq.TLO.DanNet(toon).O(focus)() == 'NULL' and tostring(state.config.Shaman.Focus) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Class.ShortName() ~= 'CLR' and mq.TLO.Group.Member(i).Class.ShortName() ~= 'WIZ' and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' then
             queueAbility(longbuffs.focus,'spell',mq.TLO.Group.Member(i).ID(),'buff')
             return
-        elseif mq.TLO.DanNet(toon).O(focus)() and mq.TLO.DanNet(toon).O(focus)() == 'NULL' and tostring(state.config.Shaman.Focus) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and (mq.TLO.Group.Member(i).Class.ShortName() == 'CLR' or mq.TLO.Group.Member(i).Class.ShortName() == 'WIZ') then
+        elseif mq.TLO.DanNet(toon).O(focus)() and mq.TLO.DanNet(toon).O(focus)() == 'NULL' and tostring(state.config.Shaman.Focus) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and (mq.TLO.Group.Member(i).Class.ShortName() == 'CLR' or mq.TLO.Group.Member(i).Class.ShortName() == 'WIZ') and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' then
             mq.cmd('/squelch /mqt id %s',mq.TLO.Group.Member(i).ID())
             mq.delay(500)
             if not mq.TLO.Target.Buff(mq.TLO.Spell(tostring(state.config.Buffs.AgiBuff)).RankName()) then
                 queueAbility(longbuffs.focus,'spell',mq.TLO.Group.Member(i).ID(),'buff')
                 return
             end
-        elseif mq.TLO.DanNet(toon).O(sow)() and mq.TLO.DanNet(toon).O(sow)() == 'NULL' and tostring(state.config.Shaman.SoW) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 then
+        elseif mq.TLO.DanNet(toon).O(sow)() and mq.TLO.DanNet(toon).O(sow)() == 'NULL' and tostring(state.config.Shaman.SoW) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' then
             queueAbility(longbuffs.sow,'spell',mq.TLO.Group.Member(i).ID(),'buff')
             return
-        elseif mq.TLO.DanNet(toon).O(regen)() and mq.TLO.DanNet(toon).O(regen)() == 'NULL' and tostring(state.config.Shaman.Regen) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 then
+        elseif mq.TLO.DanNet(toon).O(regen)() and mq.TLO.DanNet(toon).O(regen)() == 'NULL' and tostring(state.config.Shaman.Regen) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' then
             queueAbility(longbuffs.regen,'spell',mq.TLO.Group.Member(i).ID(),'buff')
             return
         end

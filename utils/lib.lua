@@ -3,12 +3,6 @@ local state = require('utils.state')
 local timer = require('utils.timer')
 local M = {}
 
-function M.debug(arg)
-    if state.debug == true then
-        print(arg)
-    end
-end
-
 function M.inControl()
     return not (mq.TLO.Me.Dead() or mq.TLO.Me.Charmed() or mq.TLO.Me.Stunned() or mq.TLO.Me.Silenced() or mq.TLO.Me.Mezzed() or mq.TLO.Me.Invulnerable() or mq.TLO.Me.Hovering())
 end
@@ -27,7 +21,7 @@ function M.debugxtars()
     print('\ay[\amSHM\ag420\ay]\am:\at Debugging XTarget...')
     mq.cmd('/squelch /assist off')
     mq.cmd('/squelch /melee plugin=0')
-    for i = xtarheals + 1,20 do
+    for i = 1,20 - xtarheals do
         mq.cmdf('/xtar set %s ah',i)
         mq.delay(20)
     end
@@ -43,6 +37,8 @@ function M.aggroCount()
     end
     return count
 end
+
+
 
 function M.checkFD()
     if mq.TLO.Me.Feigning() and (not state.didFD) then
@@ -65,7 +61,6 @@ function M.checkCursor()
             autoInventoryTimer:reset(0)
         end
     elseif autoInventoryTimer.start_time ~= 0 then
-        M.debug('Cursor is empty, resetting autoInventoryTimer')
         autoInventoryTimer:reset(0)
     end
 end
@@ -74,9 +69,6 @@ function M.determineTank()
     local tank = mq.TLO.Group.MainTank
     if not tank then
         tank = mq.TLO.Group.MainAssist
-    end
-    if not tank then
-        tank = mq.TLO.Me
     end
     return tank
 end
@@ -244,5 +236,40 @@ function M.initObservers()
 
     mq.delay(500)
 end
+
+function M.initToon(toon)
+    print('\ay[\amSHM\ag420\ay]\am:\at Initializing DanNet Observers for ' .. toon .. '...')
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.Buff[Sunset\'s Shadow]')
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.Buff[Discordant Detritus]')
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.Buff[Frenzied Venom]')
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.Buff[Shadowed Venom]')
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.Buff[Viscous Venom]')
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.Buff[Curator\'s Revenge]')
+    mq.delay(20)
+
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.CountersDisease')
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.CountersPoison')
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.CountersCurse')
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),'Me.CountersCorruption')
+    mq.delay(20)
+
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),string.format('Me.Buff[%s]',mq.TLO.Spell(tostring(state.config.Buffs.FocusBuff)).RankName()))
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),string.format('Me.Buff[%s]',mq.TLO.Spell(tostring(state.config.Buffs.SoW)).RankName()))
+    mq.delay(20)
+    mq.cmdf('/dobserve %s -q "%s"',mq.TLO.NearestSpawn(string.format('pc %s',toon)).Name(),string.format('Me.Buff[%s]',mq.TLO.Spell(tostring(state.config.Buffs.Regen)).RankName()))
+    mq.delay(20)
+end
+
+
+
 
 return M

@@ -44,7 +44,6 @@ local function doDebuffs()
                 local hascripple = mq.TLO.Target.Crippled.ID()
                 local slowtarget = mq.TLO.Target.Type() == 'NPC' and mq.TLO.Target.Aggressive() and mq.TLO.Target.PctHPs() >= tonumber(state.config.Combat.DebuffStop) and mq.TLO.Target.LineOfSight() and mq.TLO.Target.PctHPs() <= tonumber(state.config.Combat.DebuffAt)
                 if string.match(tostring(state.config.Shaman.AESlow), "On|%d+") and aggroCount >= npccount and npccount >= aeslowtarmin and not haslongslow and (mq.TLO.Cast.Ready(debuffs.aeslow)() or mq.TLO.Me.AltAbilityReady("Turgur's Virulent Swarm")()) and slowtarget then
-                    lib.debug('aeslow')
                     if string.match(tostring(state.config.Shaman.AETurgurs), "On") and mq.TLO.Me.AltAbilityReady("Turgur's Virulent Swarm")() then
                         write.Debug('\apI AM AESLOWING> THERE ARE %s MOBS ON MY XTAR AND %s MOBS IN RANGE AE RANGE. I SHOULD ONLY BE CASTING IF %s > %s and %s > 3',aggroCount,npccount,aggroCount,npcount,npccount)
                         queueAbility(debuffs.aeturgurs,'alt',tar,'debuff')
@@ -57,7 +56,6 @@ local function doDebuffs()
                         end
                     elseif mq.TLO.Cast.Ready(debuffs.aeslow)() then
                         queueAbility(debuffs.aeslow,'spell',tar,'debuff')
-                        lib.debug(debuffs.aeslow)
                         mq.delay(50)
                         heals.doheals()
                         while state.needheal == true do 

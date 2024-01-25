@@ -158,13 +158,13 @@ local function processQueue()
             mq.delay(100)
         end
 
-        if category == 'heal' and mq.TLO.Target.ID() ~= 0 and mq.TLO.Target.Type() ~= 'CORPSE' and mq.TLO.Target.PctHPs() > tonumber(state.config.Heals.CancelHealAt) then
+        if category == 'heal' and mq.TLO.Target.ID() ~= 0 and mq.TLO.Target.Type() ~= 'Corpse' and mq.TLO.Target.PctHPs() > tonumber(state.config.Heals.CancelHealAt) then
             mq.cmd('/stopcast')
             mq.delay(100)
             write.Info('Stopping cast, targets hp is > 95')
         end
 
-        if (category == 'debuff' or category == 'heal' or category == 'DD' or category == 'HoT') and (mq.TLO.Target.Type() == 'CORPSE' or mq.TLO.Target.ID() == 0) then
+        if (category == 'debuff' or category == 'heal' or category == 'DD' or category == 'HoT') and (mq.TLO.Target.Type() == 'Corpse' or mq.TLO.Target.ID() == 0) then
             mq.cmd('/stopcast')
             mq.delay(100)
             write.Info('Stopping cast, target dead')
