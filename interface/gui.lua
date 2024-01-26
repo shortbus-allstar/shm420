@@ -88,6 +88,25 @@ local function initcheckboxes()
     checkboxes.FocusWord = state.config.KeywordCustom.Focus == 'On' and true or false
     checkboxes.SoWWord = state.config.KeywordCustom.SoW == 'On' and true or false
     checkboxes.RegenWord = state.config.KeywordCustom.Regen == 'On' and true or false
+    checkboxes.BurnAllNamed = state.config.Burn.BurnAllNamed == 'On' and true or false
+    checkboxes.SmallWithBig = state.config.Burn.SmallWithBig == 'On' and true or false
+    checkboxes.UseTribute = state.config.Burn.UseTribute == 'On' and true or false
+    checkboxes.PetHold = state.config.Pet.PetHold == 'On' and true or false
+    checkboxes.PetShrink = state.config.Pet.PetShrink == 'On' and true or false
+    checkboxes.PsEnabled = state.config.Powersource.PsEnabled == 'On' and true or false
+end
+
+local function checkboxesCombat() 
+    local boxes = {
+    Melee = state.config.Combat.Melee == 'On' and true or false,
+    TimeAntithesis = state.config.Combat.TimeAntithesis == 'On' and true or false,
+    AAMalo = state.config.Shaman.AAMalo == 'On' and true or false,
+    AASingleTurgurs = state.config.Shaman.AASingleTurgurs == 'On' and true or false,
+    AEMalo = state.config.Shaman.AEMalo == 'On' and true or false,
+    AETurgurs = state.config.Shaman.AETurgurs == 'On' and true or false,
+    Slow = state.config.Shaman.Slow  == 'On' and true or false
+    }
+    return boxes
 end
 
 
@@ -108,7 +127,7 @@ function ui.main()
         ImGui.BeginTabBar('Tabs')
 
         -- First tab: Control Panel
-        if ImGui.BeginTabItem(icons.MD_LAPTOP..'   Control Panel') then
+        if ImGui.BeginTabItem(icons.MD_CODE..'   Console') then
             local totalWidth, _ = ImGui.GetContentRegionAvail()
             local columnWidth = totalWidth / 2
 
@@ -150,6 +169,10 @@ function ui.main()
             ImGui.DrawTextureAnimation(classanim,115,115)
 
             ImGui.NewLine()
+            local windowHeight = ImGui.GetWindowHeight()
+            local buttonPosY = windowHeight - 250  -- Adjust the spacing as needed
+        
+            ImGui.SetCursorPosY(buttonPosY)
 
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 75) 
             ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 1, 1))
@@ -404,286 +427,6 @@ function ui.main()
             ImGui.EndTabItem()
         end
 
-        -- Second tab: General
-        if ImGui.BeginTabItem(icons.MD_SETTINGS..'  General') then
-            -- Your General tab content goes here
-            local totalWidth, _ = ImGui.GetContentRegionAvail()
-            local columnWidth = totalWidth / 2
-
-            ImGui.Columns(2)
-            ImGui.SetColumnOffset(1, gentabOffset)
-            ImGui.SetColumnWidth(1,columnWidth)
-            ImGui.SetColumnWidth(2,columnWidth)
-            -- ...
-            if ImGui.Checkbox('Return To Camp', checkboxes.ReturnToCamp) then
-                if tostring(state.config.General.ReturnToCamp) ~= 'On' then 
-                    local chase = require('routines.campchase')
-                    print('\ay[\amSHM\ag420\ay]\am:\at Camphere: On')
-                    state.config.General.ReturnToCamp = 'On'
-                    state.config.General.ChaseAssist = 'Off'
-                    state.campxloc, state.campyloc, state.campzloc = chase.setcamp()
-                end
-            else
-                if tostring(state.config.General.ReturnToCamp) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Camphere: Off')
-                    state.config.General.ReturnToCamp = 'Off'
-                end
-            end
-            if ImGui.Checkbox('Chase Assist', checkboxes.ChaseAssist) then
-                if tostring(state.config.General.ChaseAssist) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Chase: On')
-                    state.config.General.ReturnToCamp = 'Off'
-                    state.config.General.ChaseAssist = 'On'
-                end
-            else
-                if tostring(state.config.General.ChaseAssist) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Chase: Off')
-                    state.config.General.ChaseAssist = 'Off'
-                end
-            end
-            if ImGui.Checkbox('Do Buffs', checkboxes.Buffs) then
-                if tostring(state.config.General.Buffs) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Buffs: On')
-                    state.config.General.Buffs = 'On'
-                end
-            else
-                if tostring(state.config.General.Buffs) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Buffs: Off')
-                    state.config.General.Buffs = 'Off'
-                end
-            end
-            if ImGui.Checkbox('Do Cures', checkboxes.Cures) then
-                if tostring(state.config.Shaman.Cures) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Cures: On')
-                    state.config.Shaman.Cures = 'On'
-                end
-            else
-                if tostring(state.config.Shaman.Cures) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Cures: Off')
-                    state.config.Shaman.Cures = 'Off'
-                end
-            end
-            if ImGui.Checkbox('Do Medding', checkboxes.Med) then
-                if tostring(state.config.General.Med) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Med: On')
-                    state.config.General.Med = 'On'
-                end
-            else
-                if tostring(state.config.General.Med) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Med: Off')
-                    state.config.General.Med = 'Off'
-                end
-            end
-            if ImGui.Checkbox('Med in Combat', checkboxes.MedCombat) then
-                if tostring(state.config.General.MedCombat) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at MedCombat: On')
-                    state.config.General.MedCombat = 'On'
-                end
-            else
-                if tostring(state.config.General.MedCombat) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at MedCombat: Off')
-                    state.config.General.MedCombat = 'Off'
-                end
-            end
-            if ImGui.Checkbox('Use DanNet', checkboxes.UseDNet) then
-                if tostring(state.config.General.UseDNet) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at UseDNet: On')
-                    state.config.General.UseDNet = 'On'
-                end
-            else
-                if tostring(state.config.General.UseDNet) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at UseDNet: Off')
-                    state.config.General.UseDNet = 'Off'
-                end
-            end
-            if ImGui.Checkbox('Do XTarget Healing', checkboxes.XTarHeal) then
-                if tostring(state.config.General.XTarHeal) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at XTarHeal: On')
-                    state.config.General.XTarHeal = 'On'
-                end
-            else
-                if tostring(state.config.General.XTarHeal) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at XTarHeal: Off')
-                    state.config.General.XTarHeal = 'Off'
-                end
-            end
-
-            if ImGui.Checkbox('Epic On Cooldown', checkboxes.EpicOnCD) then
-                if tostring(state.config.Shaman.EpicOnCD) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Epic on CD: On')
-                    state.config.Shaman.EpicOnCD = 'On'
-                end
-            else
-                if tostring(state.config.Shaman.EpicOnCD) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Epic on CD: Off')
-                    state.config.Shaman.EpicOnCD = 'Off'
-                end
-            end
-
-            if ImGui.Checkbox('Epic with Bard or SK Epic', checkboxes.EpicWithBardSK) then
-                if tostring(state.config.Shaman.EpicWithBardSK) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Epic with Bard/SK : On')
-                    state.config.Shaman.EpicWithBardSK = 'On'
-                end
-            else
-                if tostring(state.config.Shaman.EpicWithBardSK) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Epic with Bard/SK : Off')
-                    state.config.Shaman.EpicWithBardSK = 'Off'
-                end
-            end
-
-            if ImGui.Checkbox('Remem Spells', checkboxes.MiscGemRemem) then
-                if tostring(state.config.Spells.MiscGemRemem) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Remem Spells : On')
-                    state.config.Spells.MiscGemRemem = 'On'
-                end
-            else
-                if tostring(state.config.Spells.MiscGemRemem) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Remem Spells : Off')
-                    state.config.Spells.MiscGemRemem = 'Off'
-                end
-            end
-
-            ImGui.NextColumn()
-
-            ImGui.SetColumnOffset(2, 1000)
-
-            ImGui.Text("Chase Distance:")
-            ImGui.SameLine()
-            ImGui.SetNextItemWidth(35)
-            local inputTextBufferChaseDistance = tostring(state.config.General.ChaseDistance)
-            local inputTextBufferTempChaseDistance = inputTextBufferChaseDistance
-            local inputTextCallbackChaseDistance = function(inputText)
-                inputTextBufferTempChaseDistance = inputText
-            end
-            local newChaseDistance, changedChaseDistance = ImGui.InputText("##ChaseDistanceInput", inputTextBufferTempChaseDistance, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackChaseDistance)
-            if changedChaseDistance then
-                inputTextBufferTempChaseDistance = newChaseDistance
-            end
-            if ImGui.IsItemDeactivated() then
-                local newChaseDistanceVal = tonumber(inputTextBufferTempChaseDistance)
-                if newChaseDistanceVal then
-                    state.config.General.ChaseDistance = newChaseDistanceVal
-                end
-            end
-            
-
-            ImGui.Text("Med Start:")
-            ImGui.SameLine()
-            ImGui.SetNextItemWidth(35)
-            local inputTextBufferMedStart = tostring(state.config.General.MedStart)
-            local inputTextBufferTempMedStart = inputTextBufferMedStart
-            local inputTextCallbackMedStart = function(inputText)
-                inputTextBufferTempMedStart = inputText
-            end
-            local newMedStart, changedMedStart = ImGui.InputText("##MedStartInput", inputTextBufferTempMedStart, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackMedStart)
-            if changedMedStart then
-                inputTextBufferTempMedStart = newMedStart
-            end
-            if ImGui.IsItemDeactivated() then
-                local newMedStartVal = tonumber(inputTextBufferTempMedStart)
-                if newMedStartVal then
-                    state.config.General.MedStart = newMedStartVal
-                end
-            end
-            
-            
-            -- Med Stop
-            ImGui.Text("Med Stop:")
-            ImGui.SameLine()
-            ImGui.SetNextItemWidth(35)
-            local inputTextBufferMedStop = tostring(state.config.General.MedStop)
-            local inputTextBufferTempMedStop = inputTextBufferMedStop
-            local inputTextCallbackMedStop = function(inputText)
-                inputTextBufferTempMedStop = inputText
-            end
-            local newMedStop, changedMedStop = ImGui.InputText("##MedStopInput", inputTextBufferTempMedStop, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackMedStop)
-            if changedMedStop then
-                inputTextBufferTempMedStop = newMedStop
-            end
-            if ImGui.IsItemDeactivated() then
-                local newMedStopVal = tonumber(inputTextBufferTempMedStop)
-                if newMedStopVal then
-                    state.config.General.MedStop = newMedStopVal
-                end
-            end
-            
-            
-            -- XTarget Heal List
-            ImGui.Text("XTarget Heal List:")
-            ImGui.SameLine()
-            ImGui.SetNextItemWidth(35)
-            local inputTextBufferXTarHealList = state.config.General.XTarHealList
-            local inputTextBufferTempXTarHealList = inputTextBufferXTarHealList
-            local inputTextCallbackXTarHealList = function(inputText)
-                inputTextBufferTempXTarHealList = inputText
-            end
-            local newXTarHealList, changedXTarHealList = ImGui.InputText("##XTarHealListInput", inputTextBufferTempXTarHealList, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackXTarHealList)
-            if changedXTarHealList then
-                inputTextBufferTempXTarHealList = newXTarHealList
-            end
-            if ImGui.IsItemDeactivated() then
-                local newVal = tonumber(inputTextBufferTempXTarHealList)
-                if newVal then
-                    state.config.General.XTarHealList = newVal
-                    state.debugxtars = true
-                end
-            end
-            
-            
-            -- Misc Gem
-            ImGui.Text("Misc Gem:")
-            ImGui.SameLine()
-            ImGui.SetNextItemWidth(35)
-            local inputTextBufferMiscGem = state.config.Spells.MiscGem
-            local inputTextBufferTempMiscGem = inputTextBufferMiscGem
-            local inputTextCallbackMiscGem = function(inputText)
-                inputTextBufferTempMiscGem = inputText
-            end
-            local newMiscGem, changedMiscGem = ImGui.InputText("##MiscGemInput", inputTextBufferTempMiscGem, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackMiscGem)
-            if changedMiscGem then
-                inputTextBufferTempMiscGem = newMiscGem
-            end
-            if ImGui.IsItemDeactivated() then
-                local newVal = tonumber(inputTextBufferTempMiscGem)
-                if newVal then
-                    state.config.Spells.MiscGem = newVal
-                end
-            end
-            
-            
-            ImGui.Columns(1)
-
-            local windowHeight = ImGui.GetWindowHeight()
-            local buttonPosY = windowHeight - BUTTON_SIZE - 10  -- Adjust the spacing as needed
-        
-            ImGui.SetCursorPosY(buttonPosY)
-
-            -- Create the first button
-            local buttonLabel1 = "Save\nConfig"
-            if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
-                conf.saveConfig(conf.path,state.config,conf.iniorder)
-            end
-            
-            ImGui.SameLine()
-            
-            local buttonLabel2 = "Load\nConfig"
-            if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
-                state.config = conf.initConfig(conf.path)
-            end
-            ImGui.EndTabItem()
-
-            ImGui.SameLine()
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 300) 
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 100) 
-
-            classanim:SetTextureCell(1020)
-            ImGui.DrawTextureAnimation(classanim,150,150)
-
-
-        end
-
-        -- Third tab: Spells
         if ImGui.BeginTabItem(icons.FA_BOOK..'  Spells') then
             local totalWidth, _ = ImGui.GetContentRegionAvail()
             local columnWidth = totalWidth / 2
@@ -1300,8 +1043,346 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
             end
+
+            ImGui.SameLine()
+
+            if ImGui.Button(string.format('Reload\n     ' .. icons.FA_REFRESH), BUTTON_SIZE, BUTTON_SIZE) then
+                mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
+            end
+
             ImGui.EndTabItem()
             
+        end
+
+        if ImGui.BeginTabItem(icons.MD_SETTINGS..'  General') then
+            -- Your General tab content goes here
+            local totalWidth, _ = ImGui.GetContentRegionAvail()
+            local columnWidth = totalWidth / 2
+
+            ImGui.Columns(2)
+            ImGui.SetColumnOffset(1, gentabOffset)
+            ImGui.SetColumnWidth(1,columnWidth)
+            ImGui.SetColumnWidth(2,columnWidth)
+            -- ...
+            if ImGui.Checkbox('Return To Camp', checkboxes.ReturnToCamp) then
+                if tostring(state.config.General.ReturnToCamp) ~= 'On' then 
+                    local chase = require('routines.campchase')
+                    print('\ay[\amSHM\ag420\ay]\am:\at Camphere: On')
+                    state.config.General.ReturnToCamp = 'On'
+                    state.config.General.ChaseAssist = 'Off'
+                    state.campxloc, state.campyloc, state.campzloc = chase.setcamp()
+                end
+            else
+                if tostring(state.config.General.ReturnToCamp) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Camphere: Off')
+                    state.config.General.ReturnToCamp = 'Off'
+                end
+            end
+            if ImGui.Checkbox('Chase Assist', checkboxes.ChaseAssist) then
+                if tostring(state.config.General.ChaseAssist) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Chase: On')
+                    state.config.General.ReturnToCamp = 'Off'
+                    state.config.General.ChaseAssist = 'On'
+                end
+            else
+                if tostring(state.config.General.ChaseAssist) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Chase: Off')
+                    state.config.General.ChaseAssist = 'Off'
+                end
+            end
+            if ImGui.Checkbox('Do Buffs', checkboxes.Buffs) then
+                if tostring(state.config.General.Buffs) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Buffs: On')
+                    state.config.General.Buffs = 'On'
+                end
+            else
+                if tostring(state.config.General.Buffs) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Buffs: Off')
+                    state.config.General.Buffs = 'Off'
+                end
+            end
+            if ImGui.Checkbox('Do Cures', checkboxes.Cures) then
+                if tostring(state.config.Shaman.Cures) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Cures: On')
+                    state.config.Shaman.Cures = 'On'
+                end
+            else
+                if tostring(state.config.Shaman.Cures) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Cures: Off')
+                    state.config.Shaman.Cures = 'Off'
+                end
+            end
+            if ImGui.Checkbox('Do Medding', checkboxes.Med) then
+                if tostring(state.config.General.Med) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Med: On')
+                    state.config.General.Med = 'On'
+                end
+            else
+                if tostring(state.config.General.Med) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Med: Off')
+                    state.config.General.Med = 'Off'
+                end
+            end
+            if ImGui.Checkbox('Med in Combat', checkboxes.MedCombat) then
+                if tostring(state.config.General.MedCombat) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at MedCombat: On')
+                    state.config.General.MedCombat = 'On'
+                end
+            else
+                if tostring(state.config.General.MedCombat) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at MedCombat: Off')
+                    state.config.General.MedCombat = 'Off'
+                end
+            end
+            if ImGui.Checkbox('Use DanNet', checkboxes.UseDNet) then
+                if tostring(state.config.General.UseDNet) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at UseDNet: On')
+                    state.config.General.UseDNet = 'On'
+                end
+            else
+                if tostring(state.config.General.UseDNet) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at UseDNet: Off')
+                    state.config.General.UseDNet = 'Off'
+                end
+            end
+            if ImGui.Checkbox('Do XTarget Healing', checkboxes.XTarHeal) then
+                if tostring(state.config.General.XTarHeal) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at XTarHeal: On')
+                    state.config.General.XTarHeal = 'On'
+                end
+            else
+                if tostring(state.config.General.XTarHeal) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at XTarHeal: Off')
+                    state.config.General.XTarHeal = 'Off'
+                end
+            end
+
+            if ImGui.Checkbox('Epic On Cooldown', checkboxes.EpicOnCD) then
+                if tostring(state.config.Shaman.EpicOnCD) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Epic on CD: On')
+                    state.config.Shaman.EpicOnCD = 'On'
+                end
+            else
+                if tostring(state.config.Shaman.EpicOnCD) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Epic on CD: Off')
+                    state.config.Shaman.EpicOnCD = 'Off'
+                end
+            end
+
+            if ImGui.Checkbox('Epic with Bard or SK Epic', checkboxes.EpicWithBardSK) then
+                if tostring(state.config.Shaman.EpicWithBardSK) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Epic with Bard/SK : On')
+                    state.config.Shaman.EpicWithBardSK = 'On'
+                end
+            else
+                if tostring(state.config.Shaman.EpicWithBardSK) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Epic with Bard/SK : Off')
+                    state.config.Shaman.EpicWithBardSK = 'Off'
+                end
+            end
+
+            if ImGui.Checkbox('Remem Spells', checkboxes.MiscGemRemem) then
+                if tostring(state.config.Spells.MiscGemRemem) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Remem Spells : On')
+                    state.config.Spells.MiscGemRemem = 'On'
+                end
+            else
+                if tostring(state.config.Spells.MiscGemRemem) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Remem Spells : Off')
+                    state.config.Spells.MiscGemRemem = 'Off'
+                end
+            end
+
+            if ImGui.Checkbox('Powersource Enabled', checkboxes.PsEnabled) then
+                if tostring(state.config.Powersource.PsEnabled) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Powersource Enabled: On')
+                    state.config.Powersource.PsEnabled = 'On'
+                end
+            else
+                if tostring(state.config.Powersource.PsEnabled) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Powersource Enabled: Off')
+                    state.config.Powersource.PsEnabled = 'Off'
+                end
+            end
+
+            ImGui.NextColumn()
+
+            ImGui.SetColumnOffset(2, 1000)
+
+            ImGui.Text("Chase Distance:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(35)
+            local inputTextBufferChaseDistance = tostring(state.config.General.ChaseDistance)
+            local inputTextBufferTempChaseDistance = inputTextBufferChaseDistance
+            local inputTextCallbackChaseDistance = function(inputText)
+                inputTextBufferTempChaseDistance = inputText
+            end
+            local newChaseDistance, changedChaseDistance = ImGui.InputText("##ChaseDistanceInput", inputTextBufferTempChaseDistance, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackChaseDistance)
+            if changedChaseDistance then
+                inputTextBufferTempChaseDistance = newChaseDistance
+            end
+            if ImGui.IsItemDeactivated() then
+                local newChaseDistanceVal = tonumber(inputTextBufferTempChaseDistance)
+                if newChaseDistanceVal then
+                    state.config.General.ChaseDistance = newChaseDistanceVal
+                end
+            end
+            
+
+            ImGui.Text("Med Start:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(35)
+            local inputTextBufferMedStart = tostring(state.config.General.MedStart)
+            local inputTextBufferTempMedStart = inputTextBufferMedStart
+            local inputTextCallbackMedStart = function(inputText)
+                inputTextBufferTempMedStart = inputText
+            end
+            local newMedStart, changedMedStart = ImGui.InputText("##MedStartInput", inputTextBufferTempMedStart, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackMedStart)
+            if changedMedStart then
+                inputTextBufferTempMedStart = newMedStart
+            end
+            if ImGui.IsItemDeactivated() then
+                local newMedStartVal = tonumber(inputTextBufferTempMedStart)
+                if newMedStartVal then
+                    state.config.General.MedStart = newMedStartVal
+                end
+            end
+            
+            
+            -- Med Stop
+            ImGui.Text("Med Stop:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(35)
+            local inputTextBufferMedStop = tostring(state.config.General.MedStop)
+            local inputTextBufferTempMedStop = inputTextBufferMedStop
+            local inputTextCallbackMedStop = function(inputText)
+                inputTextBufferTempMedStop = inputText
+            end
+            local newMedStop, changedMedStop = ImGui.InputText("##MedStopInput", inputTextBufferTempMedStop, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackMedStop)
+            if changedMedStop then
+                inputTextBufferTempMedStop = newMedStop
+            end
+            if ImGui.IsItemDeactivated() then
+                local newMedStopVal = tonumber(inputTextBufferTempMedStop)
+                if newMedStopVal then
+                    state.config.General.MedStop = newMedStopVal
+                end
+            end
+            
+            
+            -- XTarget Heal List
+            ImGui.Text("XTarget Heal List:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(35)
+            local inputTextBufferXTarHealList = state.config.General.XTarHealList
+            local inputTextBufferTempXTarHealList = inputTextBufferXTarHealList
+            local inputTextCallbackXTarHealList = function(inputText)
+                inputTextBufferTempXTarHealList = inputText
+            end
+            local newXTarHealList, changedXTarHealList = ImGui.InputText("##XTarHealListInput", inputTextBufferTempXTarHealList, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackXTarHealList)
+            if changedXTarHealList then
+                inputTextBufferTempXTarHealList = newXTarHealList
+            end
+            if ImGui.IsItemDeactivated() then
+                local newVal = tonumber(inputTextBufferTempXTarHealList)
+                if newVal then
+                    state.config.General.XTarHealList = newVal
+                    state.debugxtars = true
+                end
+            end
+            
+            
+            -- Misc Gem
+            ImGui.Text("Misc Gem:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(35)
+            local inputTextBufferMiscGem = state.config.Spells.MiscGem
+            local inputTextBufferTempMiscGem = inputTextBufferMiscGem
+            local inputTextCallbackMiscGem = function(inputText)
+                inputTextBufferTempMiscGem = inputText
+            end
+            local newMiscGem, changedMiscGem = ImGui.InputText("##MiscGemInput", inputTextBufferTempMiscGem, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackMiscGem)
+            if changedMiscGem then
+                inputTextBufferTempMiscGem = newMiscGem
+            end
+            if ImGui.IsItemDeactivated() then
+                local newVal = tonumber(inputTextBufferTempMiscGem)
+                if newVal then
+                    state.config.Spells.MiscGem = newVal
+                end
+            end
+
+            ImGui.Text("Good Powersource:")
+            ImGui.SameLine()
+            local goodPsBuffer = state.config.Powersource.GoodPS or ""
+            local newGoodPs, changedGoodPs = ImGui.InputText("##GoodPsInput", goodPsBuffer, 256)
+            if changedGoodPs then
+                state.config.Powersource.GoodPS = newGoodPs
+            end
+        
+            ImGui.Text("Drained Powersource:")
+            ImGui.SameLine()
+            local drainedPsBuffer = state.config.Powersource.DrainedPS or ""
+            local newDrainedPs, changedDrainedPs = ImGui.InputText("##DrainedPsInput", drainedPsBuffer, 256)
+            if changedDrainedPs then
+                state.config.Powersource.DrainedPS = newDrainedPs
+            end
+        
+            ImGui.Text("Good Powersource Aggro Min:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(35)
+            local goodPsAggroMinBuffer = tostring(state.config.Powersource.GoodPSAggroMin)
+            local goodPsAggroMinTempBuffer = goodPsAggroMinBuffer
+            local goodPsAggroMinCallback = function(inputText)
+                goodPsAggroMinTempBuffer = inputText
+            end
+            local newGoodPsAggroMin, changedGoodPsAggroMin = ImGui.InputText("##GoodPsAggroMinInput", goodPsAggroMinTempBuffer, ImGuiInputTextFlags.CharsDecimal, goodPsAggroMinCallback)
+            if changedGoodPsAggroMin then
+                goodPsAggroMinTempBuffer = newGoodPsAggroMin
+            end
+            if ImGui.IsItemDeactivated() then
+                local newGoodPsAggroMinVal = tonumber(goodPsAggroMinTempBuffer)
+                if newGoodPsAggroMinVal then
+                    state.config.Powersource.GoodPSAggroMin = newGoodPsAggroMinVal
+                end
+            end
+            
+            
+            ImGui.Columns(1)
+
+            local windowHeight = ImGui.GetWindowHeight()
+            local buttonPosY = windowHeight - BUTTON_SIZE - 10  -- Adjust the spacing as needed
+        
+            ImGui.SetCursorPosY(buttonPosY)
+
+            -- Create the first button
+            local buttonLabel1 = "Save\nConfig"
+            if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
+                conf.saveConfig(conf.path,state.config,conf.iniorder)
+            end
+            
+            ImGui.SameLine()
+            
+            local buttonLabel2 = "Load\nConfig"
+            if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
+                state.config = conf.initConfig(conf.path)
+            end
+
+            ImGui.SameLine()
+
+            if ImGui.Button(string.format('Reload\n     ' .. icons.FA_REFRESH), BUTTON_SIZE, BUTTON_SIZE) then
+                mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
+            end
+            ImGui.EndTabItem()
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 175) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 100) 
+
+            anim:SetTextureCell(124)
+            ImGui.DrawTextureAnimation(anim,150,150)
+
+
         end
 
         if ImGui.BeginTabItem(icons.FA_SHIELD..'  Buffs') then
@@ -1540,12 +1621,18 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
             end
+
+            ImGui.SameLine()
+
+            if ImGui.Button(string.format('Reload\n     ' .. icons.FA_REFRESH), BUTTON_SIZE, BUTTON_SIZE) then
+                mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
+            end
             ImGui.EndTabItem()
             ImGui.SameLine()
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 300) 
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 175) 
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 100) 
 
-            anim:SetTextureCell(151)
+            anim:SetTextureCell(7)
             ImGui.DrawTextureAnimation(anim,150,150)
         end
 
@@ -1899,9 +1986,15 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
             end
+
+            ImGui.SameLine()
+
+            if ImGui.Button(string.format('Reload\n     ' .. icons.FA_REFRESH), BUTTON_SIZE, BUTTON_SIZE) then
+                mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
+            end
             ImGui.EndTabItem()
             ImGui.SameLine()
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 300) 
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 175) 
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 100) 
 
             anim:SetTextureCell(118)
@@ -1912,17 +2005,447 @@ function ui.main()
         if ImGui.BeginTabItem(icons.FA_FIRE .. '  Combat') then
             -- Your Combat tab content goes here
             -- ...
+            local totalWidth, _ = ImGui.GetContentRegionAvail()
+            local columnWidth = totalWidth / 2
 
+            ImGui.Columns(2)
+            ImGui.SetColumnOffset(1, gentabOffset)
+            ImGui.SetColumnWidth(1,columnWidth)
+            ImGui.SetColumnWidth(2,columnWidth)
+
+            local checkboxOrder = {
+                "AASingleTurgurs",
+                "AAMalo",
+                "AETurgurs",
+                "AEMalo",
+                "Melee",
+                "Slow",
+                "TimeAntithesis"
+            }
+
+            local numberInputOrder = {
+                "AttackAt",
+                "AttackRange",
+                "DebuffAt",
+                "DebuffStop",
+                "DDAt",
+                "DDStop",
+                "DoTAt",
+                "DoTStop",
+            }
+
+            for _, key in ipairs(checkboxOrder) do
+                local value = checkboxesCombat()[key]
+                if ImGui.Checkbox(key, value) then
+                    ImGui.SameLine()
+                    ImGui.NewLine()
+                    if tostring(state.config.Combat[key]) ~= 'On' then
+                        print(string.format('\ay[\amSHM\ag420\ay]\am:\at %s: On', key))
+                        state.config.Combat[key] = 'On'
+                    end
+                else
+                    if tostring(state.config.Combat[key]) == 'On' then
+                        print(string.format('\ay[\amSHM\ag420\ay]\am:\at %s: Off', key))
+                        state.config.Combat[key] = 'Off'
+                    end
+                end
+            end
+
+            if ImGui.Checkbox('Hold Pet', checkboxes.PetHold) then
+                if tostring(state.config.Pet.PetHold) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Pet Hold: On')
+                    state.config.Pet.PetHold = 'On'
+                end
+            else
+                if tostring(state.config.Pet.PetHold) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Pet Hold: Off')
+                    state.config.Pet.PetHold = 'Off'
+                end
+            end
+
+            if ImGui.Checkbox('Shrink Pet', checkboxes.PetShrink) then
+                if tostring(state.config.Pet.PetShrink) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Pet Shrink: On')
+                    state.config.Pet.PetShrink = 'On'
+                end
+            else
+                if tostring(state.config.Pet.PetShrink) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Pet Shrink: Off')
+                    state.config.Pet.PetShrink = 'Off'
+                end
+            end
+
+            local dropdownOrder = {
+                "DDs",
+                "DoTs",
+                "Cripple",
+                "Feralize",
+                "Malo",
+                "UnresMalo",
+            }
+            
+            -- Dropdown entries
+            local dropdownOptions = { "On", "Off", "Named" }
+
+            local function dropdowns()
+                local drops = {
+                DDs = state.config.Combat.DDs,
+                DoTs = state.config.Combat.DoTs,
+                Cripple = state.config.Shaman.Cripple,
+                Feralize = state.config.Shaman.Feralize,
+                Malo = state.config.Shaman.Malo,
+                UnresMalo = state.config.Shaman.UnresMalo,
+                }
+                return drops
+            end
+            
+            ImGui.NewLine()
+
+
+            
+            -- Render dropdowns
+            for _, key in ipairs(dropdownOrder) do
+                local value = dropdowns()[key]
+            
+                ImGui.Text(string.format("%s:", key))
+                ImGui.SameLine()
+            
+                local currentIndex = 1
+                for i, option in ipairs(dropdownOptions) do
+                    if option == value then
+                        currentIndex = i
+                        break
+                    end
+                end
+            
+                local newComboIndex
+                ImGui.SetNextItemWidth(100)
+                newComboIndex, value = ImGui.Combo(string.format("##%sCombo", key), currentIndex, dropdownOptions, #dropdownOptions)
+            
+                if newComboIndex ~= currentIndex then
+                    value = dropdownOptions[newComboIndex]
+                    print(string.format('\ay[\am%s\ag420\ay]\am:\at %s: %s', key:upper(), key, value))
+                    if key == "DDs" or key == "DoTs" then
+                        state.config.Combat[key] = value
+                    else
+                        state.config.Shaman[key] = value
+                    end
+                end
+        
+            end
+
+            local function numberInputsCombat() 
+                local numbers = {
+                AttackAt = state.config.Combat.AttackAt,
+                AttackRange = state.config.Combat.AttackRange,
+                DebuffAt = state.config.Combat.DebuffAt,
+                DDAt = state.config.Combat.DDAt,
+                DoTAt = state.config.Combat.DoTAt,
+                DebuffStop = state.config.Combat.DebuffStop,
+                DDStop = state.config.Combat.DDStop,
+                DoTStop = state.config.Combat.DoTStop,
+                }
+                return numbers
+            end
+
+            ImGui.NextColumn()
+            ImGui.SetColumnOffset(2, 1000)
+
+            for _, key in ipairs(numberInputOrder) do
+                local value = numberInputsCombat()[key]
+                ImGui.Text(string.format("%s:", key))
+                ImGui.SameLine()
+                ImGui.SetNextItemWidth(35)
+                
+                local inputTextBuffer = tostring(value)
+                local inputTextBufferTemp = inputTextBuffer
+                
+                local inputTextCallback = function(inputText)
+                    inputTextBufferTemp = inputText
+                end
+                
+                local newValue, changedValue = ImGui.InputText(string.format("##%sInput", key), inputTextBufferTemp, ImGuiInputTextFlags.CharsDecimal, inputTextCallback)
+                
+                if changedValue then
+                    inputTextBufferTemp = newValue
+                end
+                
+                if ImGui.IsItemDeactivated() then
+                    local newNumericValue = tonumber(inputTextBufferTemp)
+                    if newNumericValue then
+                        state.config.Combat[key] = newNumericValue
+                    end
+                end
+            end
+
+            ImGui.Text("Pet Assist At:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(35)
+            local petAssistBuffer = tostring(state.config.Pet.PetAssist)
+            local petAssistTempBuffer = petAssistBuffer
+            local petAssistCallback = function(inputText)
+                petAssistTempBuffer = inputText
+            end
+            local newPetAssist, changedPetAssist = ImGui.InputText("##PetAssistInput", petAssistTempBuffer, ImGuiInputTextFlags.CharsDecimal, petAssistCallback)
+            if changedPetAssist then
+                petAssistTempBuffer = newPetAssist
+            end
+            if ImGui.IsItemDeactivated() then
+                local newPetAssistVal = tonumber(petAssistTempBuffer)
+                if newPetAssistVal then
+                    state.config.Pet.PetAssist = newPetAssistVal
+                end
+            end
+        
+            ImGui.Text("Pet Range:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(35)
+            local petRangeBuffer = tostring(state.config.Pet.PetRange)
+            local petRangeTempBuffer = petRangeBuffer
+            local petRangeCallback = function(inputText)
+                petRangeTempBuffer = inputText
+            end
+            local newPetRange, changedPetRange = ImGui.InputText("##PetRangeInput", petRangeTempBuffer, ImGuiInputTextFlags.CharsDecimal, petRangeCallback)
+            if changedPetRange then
+                petRangeTempBuffer = newPetRange
+            end
+            if ImGui.IsItemDeactivated() then
+                local newPetRangeVal = tonumber(petRangeTempBuffer)
+                if newPetRangeVal then
+                    state.config.Pet.PetRange = newPetRangeVal
+                end
+            end
+
+            ImGui.NewLine()
+
+            local aeslowCheckbox = state.config.Shaman.AESlow:match('On|%d+') ~= nil
+            local aeslowValue = tonumber(state.config.Shaman.AESlow:match('|(%d+)')) or 0
+            
+            -- Render checkbox for AESlow
+            if ImGui.Checkbox("AESlow", aeslowCheckbox) then
+                if state.config.Shaman.AESlow:match('On|%d+') == nil then state.config.Shaman.AESlow = string.format("On|%s",aeslowValue) end
+
+                ImGui.SameLine()
+                ImGui.Text("Min Targets")
+                ImGui.SameLine()
+                ImGui.SetNextItemWidth(35)
+                
+                local inputTextBufferAESlow = tostring(aeslowValue)
+                local inputTextBufferTempAESlow = inputTextBufferAESlow
+                
+                local inputTextCallbackAESlow = function(inputText)
+                    inputTextBufferTempAESlow = inputText
+                end
+                
+                local newAESlowValue, changedAESlowValue = ImGui.InputText("##AESlowInput", inputTextBufferTempAESlow, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackAESlow)
+                
+                if changedAESlowValue then
+                    inputTextBufferTempAESlow = newAESlowValue
+                end
+                
+                if ImGui.IsItemDeactivated() then
+                    local newNumericValueAESlow = tonumber(inputTextBufferTempAESlow)
+                    if newNumericValueAESlow then
+                        state.config.Shaman.AESlow = string.format("On|%s", newNumericValueAESlow)
+                    end
+                end
+            elseif state.config.Shaman.AESlow:match('On|%d+') ~= nil then state.config.Shaman.AESlow = string.format('Off|%s',aeslowValue) end
+
+            ImGui.Columns(1)
+
+            local windowHeight = ImGui.GetWindowHeight()
+            local buttonPosY = windowHeight - BUTTON_SIZE - 10  -- Adjust the spacing as needed
+        
+            ImGui.SetCursorPosY(buttonPosY)
+
+            -- Create the first button
+            local buttonLabel1 = "Save\nConfig"
+            if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
+                conf.saveConfig(conf.path,state.config,conf.iniorder)
+            end
+            
+            ImGui.SameLine()
+            
+            local buttonLabel2 = "Load\nConfig"
+            if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
+                state.config = conf.initConfig(conf.path)
+            end
+
+            ImGui.SameLine()
+
+            if ImGui.Button(string.format('Reload\n     ' .. icons.FA_REFRESH), BUTTON_SIZE, BUTTON_SIZE) then
+                mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
+            end
             ImGui.EndTabItem()
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 175) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 100) 
+
+            anim:SetTextureCell(42)
+            ImGui.DrawTextureAnimation(anim,150,150)
         end
 
-        -- Sixth tab: Misc
-        if ImGui.BeginTabItem(icons.FA_QUESTION .. '  Misc') then
+        if ImGui.BeginTabItem(icons.FA_TROPHY .. '  Burn') then
+            local totalWidth, _ = ImGui.GetContentRegionAvail()
+            local columnWidth = totalWidth / 2
+
             -- Your Misc tab content goes here
-            -- ...
+
+            ImGui.Text("Big Burn If:")
+            ImGui.SameLine()
+            local bigBurnIfBuffer = state.config.Burn.BigBurnIf or ""
+            local newBigBurnIf, changedBigBurnIf = ImGui.InputText("##BigBurnIfInput", bigBurnIfBuffer, 256)
+            if changedBigBurnIf then
+                state.config.Burn.BigBurnIf = newBigBurnIf
+            end
+        
+        
+            -- Dropdown options for BBurns and SBurns
+            local burnOptions = { "alt", "spell", "item" }
+        
+            -- New entries for BBurns
+            for i = 1, 8 do
+                local burnKey = string.format("BBurn%d", i)
+                ImGui.Text(burnKey .. ":")
+                ImGui.SameLine()
+        
+                local burnBuffer = state.config.Burn[burnKey] or ""
+                local newBurn, changedBurn = ImGui.InputText(string.format("##%sInput", burnKey), burnBuffer:match("^(.-)|"), 256)
+        
+                ImGui.SameLine()
+        
+                local currentIndex = 1
+                for i, option in ipairs(burnOptions) do
+                    if option == burnBuffer:match("|(.+)$") then
+                        currentIndex = i
+                        break
+                    end
+                end
+        
+                local newComboIndex
+                newComboIndex, _ = ImGui.Combo(string.format("##%sCombo", burnKey), currentIndex, burnOptions, #burnOptions)
+        
+                if changedBurn or (newComboIndex ~= currentIndex) then
+                    local newBurnValue = string.format("%s|%s", newBurn, burnOptions[newComboIndex])
+                    state.config.Burn[burnKey] = newBurnValue
+                end
+            end
+
+            ImGui.NewLine()
+            ImGui.Text("Small Burn If:")
+            ImGui.SameLine()
+            local smallBurnIfBuffer = state.config.Burn.SmallBurnIf or ""
+            local newSmallBurnIf, changedSmallBurnIf = ImGui.InputText("##SmallBurnIfInput", smallBurnIfBuffer, 256)
+            if changedSmallBurnIf then
+                state.config.Burn.SmallBurnIf = newSmallBurnIf
+            end
+        
+            -- New entries for SBurns
+            for i = 1, 8 do
+                local burnKey = string.format("SBurn%d", i)
+                ImGui.Text(burnKey .. ":")
+                ImGui.SameLine()
+        
+                local burnBuffer = state.config.Burn[burnKey] or ""
+                local newBurn, changedBurn = ImGui.InputText(string.format("##%sInput", burnKey), burnBuffer:match("^(.-)|"), 256)
+        
+                ImGui.SameLine()
+        
+                local currentIndex = 1
+                for i, option in ipairs(burnOptions) do
+                    if option == burnBuffer:match("|(.+)$") then
+                        currentIndex = i
+                        break
+                    end
+                end
+        
+                local newComboIndex
+                newComboIndex, _ = ImGui.Combo(string.format("##%sCombo", burnKey), currentIndex, burnOptions, #burnOptions)
+        
+                if changedBurn or (newComboIndex ~= currentIndex) then
+                    local newBurnValue = string.format("%s|%s", newBurn, burnOptions[newComboIndex])
+                    state.config.Burn[burnKey] = newBurnValue
+                end
+            end
+        
+            ImGui.Columns(1)
+        
+
+            local windowHeight = ImGui.GetWindowHeight()
+            local buttonPosY = windowHeight - BUTTON_SIZE - 10  -- Adjust the spacing as needed
+        
+            ImGui.SetCursorPosY(buttonPosY)
+
+            -- Create the first button
+            local buttonLabel1 = "Save\nConfig"
+            if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
+                conf.saveConfig(conf.path,state.config,conf.iniorder)
+            end
+            
+            ImGui.SameLine()
+            
+            local buttonLabel2 = "Load\nConfig"
+            if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
+                state.config = conf.initConfig(conf.path)
+            end
+
+            ImGui.SameLine()
+
+            if ImGui.Button(string.format('Reload\n     ' .. icons.FA_REFRESH), BUTTON_SIZE, BUTTON_SIZE) then
+                mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
+            end
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 25) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 15) 
+
+            if ImGui.Checkbox('Burn All Named', checkboxes.BurnAllNamed) then
+                if tostring(state.config.Burn.BurnAllNamed) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Burn Named: On')
+                    state.config.Burn.BurnAllNamed = 'On'
+                end
+            else
+                if tostring(state.config.Burn.BurnAllNamed) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Burn Named: Off')
+                    state.config.Burn.BurnAllNamed = 'Off'
+                end
+            end
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 129) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 12) 
+
+            if ImGui.Checkbox('Small Burn w/ Big Burn', checkboxes.SmallWithBig) then
+                if tostring(state.config.Burn.SmallWithBig) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Both Burns: On')
+                    state.config.Burn.SmallWithBig = 'On'
+                end
+            else
+                if tostring(state.config.Burn.SmallWithBig) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Single Burn mode: On')
+                    state.config.Burn.SmallWithBig = 'Off'
+                end
+            end
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 178) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 38) 
+
+            if ImGui.Checkbox('Use Tribute', checkboxes.UseTribute) then
+                if tostring(state.config.Burn.UseTribute) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Both Burns: On')
+                    state.config.Burn.UseTribute = 'On'
+                end
+            else
+                if tostring(state.config.Burn.UseTribute) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Single Burn mode: On')
+                    state.config.Burn.UseTribute = 'Off'
+                end
+            end
 
             ImGui.EndTabItem()
         end
+
 
         ImGui.EndTabBar()
 

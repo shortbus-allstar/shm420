@@ -36,7 +36,7 @@ function M.checkPet()
         mq.TLO.Me.GroupAssistTarget.Distance3D() and petRange and
         mq.TLO.Me.GroupAssistTarget.PctHPs() and petAssistThreshold and
         mq.TLO.Me.GroupAssistTarget.Distance3D() <= petRange and
-        mq.TLO.Me.GroupAssistTarget.PctHPs() <= petAssistThreshold then
+        mq.TLO.Me.GroupAssistTarget.PctHPs() or 101 <= petAssistThreshold then
         mq.cmdf('/squelch /pet attack %s', mq.TLO.Me.GroupAssistTarget.ID())
 end
 
