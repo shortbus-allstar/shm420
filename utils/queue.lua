@@ -24,6 +24,34 @@ local function processQueue()
     local abilID, abiltype, abiltarget, category = abilityData.abilID, abilityData.abiltype, abilityData.abiltarget, abilityData.category
     state.interrupted = false
 
+    local burn = require('routines.burn')
+    local burns = burn.getBurns()
+    write.Warn('should i burn BB %s SB %s',burns.BBIf,burns.SBIf)
+
+    if mq.TLO.Me.CombatState() == 'COMBAT' and (burns.BBIf ~= '0' or tostring(state.config.Burn.BurnAllNameds) == 'Big') and not state.burning then
+        write.Warn('Big DICKING')
+        burn.doBigBurns()
+        state.burning = true
+    elseif mq.TLO.Me.CombatState() == 'COMBAT' and (burns.SBIf ~= '0' or tostring(state.config.Burn.BurnAllNameds) == 'Small') and not state.burning then
+        write.Warn('smol DICKING')
+        burn.doSmallBurns()
+        state.burning = true
+    end
+
+    if #state.burnqueue == 0 and ((not burns.BBIf and not burns.SBIf) or mq.TLO.Me.CombatState() ~= 'COMBAT') then state.burning = false end
+
+
+    if category ~= 'heal' and mq.TLO.Me.CombatState() == 'COMBAT' and state.burning and #state.burnqueue > 0 then
+        write.Warn('Changing ability to %s',state.burnqueue[1].name)
+        abiltype = state.burnqueue[1].type
+        if abiltype == 'alt' then abilID = mq.TLO.Me.AltAbility(state.burnqueue[1].name).ID() end
+        if abiltype == 'spell' then abilID = mq.TLO.Spell(state.burnqueue[1].name).ID() end
+        if abiltype == 'item' then abilID = tostring(state.burnqueue[1].name) end
+        abiltarget = mq.TLO.Me.GroupAssistTarget.ID()
+        category = 'DD'
+        table.remove(state.burnqueue,1)
+    end
+
     if state.canmem == false and state.memqueue and state.memqueue.abilID == abilityData.abilID then
         write.Info('already attempting to mem this spell, exiting')
         abilityQueue = {}
@@ -113,11 +141,11 @@ local function processQueue()
         end
         
     elseif tostring(state.config.Spells.MiscGemRemem) ~= 'On' and memmed == false then
-        write.Error('Misc Gem Remem is not on. Can\'t mem spell, clearing queue...')
+        write.Warn('Misc Gem Remem is not on. Can\'t mem spell, clearing queue...')
         abilityQueue = {}
         return
     elseif state.canmem == false and memmed == false then
-        write.Error('Already waiting for spell to mem, clearing queue...')
+        write.Warn('Already waiting for spell to mem, clearing queue...')
         abilityQueue = {}
         return
     end
@@ -127,7 +155,7 @@ local function processQueue()
     end
     write.Trace('Cmd: %s',cmdMsg)
     if not cmdMsg then
-        write.Error('Command was never declared. Relevent debug info: abilid(%s), abiltype(%s)',abilID,abiltype)
+        write.Warn('Command was never declared. Relevent debug info: abilid(%s), abiltype(%s)',abilID,abiltype)
         return
     end
     mq.delay(250)
@@ -205,7 +233,7 @@ local function queue(abilID,abiltype,abiltarget,category)
         processQueue()
     end
     if #abilityQueue > 1 then
-        write.Error('Error: Queue has more than one ability. Clearing queue...')
+        write.Warn('Error: Queue has more than one ability. Clearing queue...')
         abilityQueue = {}
     end
 end

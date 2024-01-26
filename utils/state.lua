@@ -38,6 +38,8 @@ end
 
 local state = {
     buffqueue = {},
+    burnqueue = {},
+    burning = false,
     canmem = true,
     config = conf.initConfig(conf.path),
     debug = false,

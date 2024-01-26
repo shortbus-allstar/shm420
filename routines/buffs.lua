@@ -44,7 +44,7 @@ function M.checkShortBuffs()
     elseif tostring(state.config.Shaman.EpicWithBardSK) == 'On' and mq.TLO.Cast.Ready("Blessed Spiritstaff of the Heyokah")() and (mq.TLO.Me.Song("Spirit of Vesagran").ID() or mq.TLO.Me.Song("Lich Sting").ID()) and not mq.TLO.Me.Song("Prophet's Gift of the Ruchu").ID() then
         queueAbility('Blessed Spiritstaff of the Heyokah','item')
         return
-    elseif not mq.TLO.Me.Buff(tostring(state.config.Buffs.Ward))() and mq.TLO.Cast.Ready(mq.TLO.Spell(mq.TLO.Spell(state.config.Buffs.Ward).RankName()).ID())() and tostring(state.config.Shaman.Ward) == 'On' then
+    elseif not mq.TLO.Me.Buff(tostring(state.config.Buffs.Ward))() and mq.TLO.Cast.Ready(mq.TLO.Spell(mq.TLO.Spell(state.config.Buffs.Ward).RankName()).ID())() and tostring(state.config.Shaman.Ward) == 'On' and not mq.TLO.Me.Song('Ancestral Physical Guard')() and not mq.TLO.Me.Buff('Bulwark of Vie')() then
         queueAbility(mq.TLO.Spell(mq.TLO.Spell(state.config.Buffs.Ward).RankName()).ID(),'spell')
         return
     elseif not mq.TLO.Me.Buff("Champion")() and mq.TLO.Cast.Ready("Champion")() and tostring(state.config.Shaman.Champion) == 'On' then

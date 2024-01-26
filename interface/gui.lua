@@ -117,6 +117,84 @@ function ui.main()
             ImGui.SetColumnWidth(1,columnWidth)
             ImGui.SetColumnWidth(2,columnWidth)
 
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 15) 
+
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0.8, 0.2, 0.8, 1.0))
+            ImGui.SetWindowFontScale(1.7)
+            ImGui.Text('SHM')
+            ImGui.PopStyleColor()
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 8)
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 0, 1.0)) 
+            ImGui.Text('420')
+            ImGui.PopStyleColor()
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 15)
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(1.0, 0.5, 0.0, 1.0)) 
+            ImGui.Text(state.version)
+            ImGui.SetWindowFontScale(1)
+            ImGui.PopStyleColor()
+
+
+            ImGui.NewLine()
+
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 30) 
+
+            classanim:SetTextureCell(696)
+            ImGui.DrawTextureAnimation(classanim,200,200)
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 105) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 80)
+            classanim:SetTextureCell(8657)
+            ImGui.DrawTextureAnimation(classanim,115,115)
+
+            ImGui.NewLine()
+
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 75) 
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 1, 1))
+
+            if ImGui.Button(string.format('Update\n     ' .. icons.FA_DOWNLOAD), BUTTON_SIZE * 2, BUTTON_SIZE) then
+                os.execute('powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri \'https://raw.githubusercontent.com/shortbus-allstar/shm420/main/shm420.zip\' -OutFile \'' .. mq.luaDir .. '\\shm420.zip\' -UseBasicParsing"')
+             
+
+                local zipFilePath = mq.luaDir .. "\\shm420.zip"
+                local targetDir = mq.luaDir
+                local extractDir = mq.luaDir .. "\\shm420"
+                
+                -- Construct PowerShell command with Lua variables
+                local powershellCommand = 'powershell -ExecutionPolicy Bypass -File "' .. mq.luaDir .. '\\shm420\\utils\\update.ps1" ' .. '-zipFilePath "' .. zipFilePath .. '" ' .. '-targetDir "' .. targetDir .. '" ' .. '-extractDir "' .. extractDir .. '"'
+                
+                -- Execute the PowerShell script using os.execute
+                os.execute(powershellCommand)
+                
+                os.execute('del "' .. zipFilePath .. '"')
+            end
+
+            ImGui.PopStyleColor()
+
+
+            if state.version ~= tostring(state.githubver) then
+                local alpha = 0.5 * (1 + math.sin((frameCounter % flashInterval) / flashInterval * (2 * math.pi)))  -- Use a sine function for smooth fading
+
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 75) 
+                ImGui.TextColored(ImVec4(1, 0, 0, alpha), "Update Available!")
+            else
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 70)
+                ImGui.TextColored(ImVec4(0, 1, 0, 1), "Using Latest Version")
+            end
+
+            ImGui.NewLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 40) 
+
+            ImGui.Text('GitHub Version:') 
+            ImGui.SameLine()
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(1.0, 0.5, 0.0, 1.0))
+            ImGui.Text(tostring(state.githubver)) 
+            ImGui.PopStyleColor()
+
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 8) 
+
             local buttonLabel1 = "Set\nCamp"
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 mq.cmd('/shm camp on')
@@ -139,6 +217,7 @@ function ui.main()
             if ImGui.Button(buttonLabel4, BUTTON_SIZE, BUTTON_SIZE) then
                 mq.cmd('/shm chase off')
             end  
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 8) 
 
             local buttonLabel5 = "Melee\nOn"
             if ImGui.Button(buttonLabel5, BUTTON_SIZE, BUTTON_SIZE) then
@@ -178,76 +257,6 @@ function ui.main()
 
             ImGui.PopStyleColor()
 
-            ImGui.NewLine()
-
-            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0.8, 0.2, 0.8, 1.0))
-            ImGui.SetWindowFontScale(1.7)
-            ImGui.Text('SHM')
-            ImGui.PopStyleColor()
-            ImGui.SameLine()
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 8)
-            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 0, 1.0)) 
-            ImGui.Text('420')
-            ImGui.PopStyleColor()
-            ImGui.SameLine()
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 15)
-            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(1.0, 0.5, 0.0, 1.0)) 
-            ImGui.Text(state.version)
-            ImGui.SetWindowFontScale(1)
-            ImGui.PopStyleColor()
-
-
-            ImGui.NewLine()
-
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 30) 
-
-            classanim:SetTextureCell(696)
-            ImGui.DrawTextureAnimation(classanim,200,200)
-
-            ImGui.NewLine()
-
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 75) 
-            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 1, 1))
-
-            if ImGui.Button(string.format('Update\n     ' .. icons.FA_DOWNLOAD), BUTTON_SIZE * 2, BUTTON_SIZE) then
-                os.execute('powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri \'https://raw.githubusercontent.com/shortbus-allstar/shm420/main/shm420.zip\' -OutFile \'' .. mq.luaDir .. '\\shm420.zip\' -UseBasicParsing"')
-             
-
-                local zipFilePath = mq.luaDir .. "\\shm420.zip"
-                local targetDir = mq.luaDir
-                local extractDir = mq.luaDir .. "\\shm420"
-                
-                -- Construct PowerShell command with Lua variables
-                local powershellCommand = 'powershell -ExecutionPolicy Bypass -File "' .. mq.luaDir .. '\\shm420\\utils\\update.ps1" ' .. '-zipFilePath "' .. zipFilePath .. '" ' .. '-targetDir "' .. targetDir .. '" ' .. '-extractDir "' .. extractDir .. '"'
-                
-                -- Execute the PowerShell script using os.execute
-                os.execute(powershellCommand)
-                
-                os.execute('del "' .. zipFilePath .. '"')
-            end
-
-            ImGui.PopStyleColor()
-
-
-            if state.version ~= tostring(state.githubver) then
-                local alpha = 0.5 * (1 + math.sin((frameCounter % flashInterval) / flashInterval * (2 * math.pi)))  -- Use a sine function for smooth fading
-
-                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 75) 
-                ImGui.TextColored(ImVec4(1, 0, 0, alpha), "Update Available!")
-            else
-                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 70)
-                ImGui.TextColored(ImVec4(0, 1, 0, 1), "Using Latest Version")
-            end
-
-            ImGui.NewLine()
-            ImGui.NewLine()
-
-            ImGui.Text('GitHub Version:') 
-            ImGui.SameLine()
-            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(1.0, 0.5, 0.0, 1.0))
-            ImGui.Text(tostring(state.githubver)) 
-            ImGui.PopStyleColor()
-
             ImGui.NextColumn()
 
             local function hpcolor()
@@ -272,8 +281,8 @@ function ui.main()
             ImGui.SameLine()
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10) 
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 15) 
-            classanim:SetTextureCell(8657)
-            ImGui.DrawTextureAnimation(classanim,55,55)
+            anim:SetTextureCell(867)
+            ImGui.DrawTextureAnimation(anim,55,55)
 
             ImGui.NewLine()
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 45) 
@@ -328,12 +337,28 @@ function ui.main()
             ImGui.PushStyleColor(ImGuiCol.Text,ImVec4(1,0,0,1))
             if ImGui.Button('Clear',ImVec2(40,20)) then
                 state.dpsqueue = {}
+                state.canmem = true
+            end
+            ImGui.PopStyleColor()
+
+            ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'# in Burn Queue:')
+            ImGui.SameLine()
+            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(#state.burnqueue))
+            ImGui.SameLine()
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2) 
+            ImGui.PushStyleColor(ImGuiCol.Text,ImVec4(1,0,0,1))
+            if ImGui.Button('Clear',ImVec2(40,20)) then
+                state.burnqueue = {}
             end
             ImGui.PopStyleColor()
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Can Mem:')
             ImGui.SameLine()
             ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(state.canmem))
+
+            ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Burning:')
+            ImGui.SameLine()
+            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(state.burning))
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Medding:')
             ImGui.SameLine()

@@ -5,6 +5,7 @@ local lib = require('utils.lib')
 local write = require('utils.Write')
 local timeSinceHot = timer:new(43000)
 
+local guardtime = 0
 local heals = {}
 local heallist = {}
 
@@ -237,9 +238,10 @@ function heals.doheals()
         write.Trace('Healtype Exists')
         state.needheal = true
 
-        if healtarid == mq.TLO.Me.ID() and mq.TLO.Me.AltAbilityReady("Ancestral Guard")() and mq.TLO.Me.PctHPs() < tonumber(state.config.Shaman.AncGuardAt) and lib.inControl() then
+        if healtarid == mq.TLO.Me.ID() and mq.TLO.Me.AltAbilityReady("Ancestral Guard")() and mq.TLO.Me.PctHPs() < tonumber(state.config.Shaman.AncGuardAt) and lib.inControl() and (mq.gettime() - guardtime) > 3000 then
             mq.cmdf('/alt act %s',heallist.panic.ancguard)
             printf('\ay[\amSHM\ag420\ay]\am:\at Activating \amAncestral Guard\aw on \ar%s',mq.TLO.Me.Name())
+            guardtime = mq.gettime()
             return
         end
 

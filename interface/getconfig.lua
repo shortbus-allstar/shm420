@@ -17,13 +17,13 @@ function M.initConfig(cfgpath)
         local currentSection = nil
 
         for line in cfgfile:lines() do
-            local section = line:match("%[(.-)%]")
+            local section = line:match("^%[([^%]]+)%]$")
             if section then
                 currentSection = section
                 table.insert(sectionOrder, currentSection)
                 cfgtable[currentSection] = { order = {} }
             else
-                local key, value = line:match("([^=]+)=(.+)")
+                local key, value = line:match("^([^=]+)=(.+)$")
                 if key and value and currentSection then
                     table.insert(cfgtable[currentSection].order, key)
                     cfgtable[currentSection][key] = value
@@ -50,12 +50,12 @@ function M.initConfig(cfgpath)
         local cfgfile = io.open(cfgpath, "r")
         if cfgfile then
             for line in cfgfile:lines() do
-                local section = line:match("%[(.-)%]")
+                local section = line:match("^%[([^%]]+)%]$")
                 if section then
                     currentSection = section
                     cfgtable[currentSection] = {}
                 else
-                    local key, value = line:match("([^=]+)=(.+)")
+                    local key, value = line:match("^([^=]+)=(.+)$")
                     if key and value and currentSection then
                         cfgtable[currentSection][key] = value
                     end
@@ -73,6 +73,8 @@ function M.initConfig(cfgpath)
 
     return cfgtable
 end
+
+
 
 function M.saveConfig(cfgpath, cfgtable, sectionOrder)
     -- Open the INI file for writing
