@@ -18,6 +18,7 @@ local PackageMan = require('mq/PackageMan')
 PackageMan.Require('lua-cjson','cjson')
 PackageMan.Require('luasec','ssl')
 PackageMan.Require('luasocket','ltn12')
+PackageMan.Require('luafilesystem','lfs')
 
 
 state.updateLoopState()
@@ -61,11 +62,6 @@ local function main()
         state.updateLoopState()
         write.Trace('New Loop')
         if state.debugxtars then lib.debugxtars() state.debugxtars = false end
-        if tostring(state.config.Shaman.Aura) == 'On' and not mq.TLO.Me.Aura('1')() then 
-            mq.cmd('/aa act Pact of the Wolf') 
-            print('\ay[\amSHM\ag420\ay]\am:\at Activating \amPact of the Wolf')
-            mq.delay(750) 
-        end
         if state.dead == true then 
             mq.doevents('zoned')
             mq.delay(100)
@@ -79,6 +75,11 @@ local function main()
                 lib.checkFD()
                 lib.checkCursor()
                 if lib.amiready() then
+                    if tostring(state.config.Shaman.Aura) == 'On' and not mq.TLO.Me.Aura('1')() then 
+                        mq.cmd('/aa act Pact of the Wolf') 
+                        print('\ay[\amSHM\ag420\ay]\am:\at Activating \amPact of the Wolf')
+                        mq.delay(750) 
+                    end
                     chase.chaseorcamp()
                     heals.doheals()
                     cures.doCures()

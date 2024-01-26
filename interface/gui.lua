@@ -16,6 +16,8 @@ local openGUI = true
 local shouldDrawGUI = true
 local gentabOffset = 200 -- Adjust this value based on your layout
 local spelltabOffset = 270
+local newPresetNameBuffer = ""
+local selectedPresetIndex = 1
 
 
 local CUSTOM_THEME = {
@@ -102,11 +104,28 @@ local function checkboxesCombat()
     TimeAntithesis = state.config.Combat.TimeAntithesis == 'On' and true or false,
     AAMalo = state.config.Shaman.AAMalo == 'On' and true or false,
     AASingleTurgurs = state.config.Shaman.AASingleTurgurs == 'On' and true or false,
-    AEMalo = state.config.Shaman.AEMalo == 'On' and true or false,
+    AEMaloAA = state.config.Shaman.AEMaloAA == 'On' and true or false,
     AETurgurs = state.config.Shaman.AETurgurs == 'On' and true or false,
     Slow = state.config.Shaman.Slow  == 'On' and true or false
     }
     return boxes
+end
+
+local lfs = require("lfs")
+
+-- Function to get a list of preset names in the directory
+local function getPresetList()
+    local presetList = {}
+    local presetDir = mq.luaDir .. '\\shm420\\presets'
+
+    for file in lfs.dir(presetDir) do
+        if file ~= "." and file ~= ".." and file:match("%.lua$") then
+            local presetName = file:gsub("%.lua$", "")
+            table.insert(presetList, presetName)
+        end
+    end
+
+    return presetList
 end
 
 
@@ -422,6 +441,131 @@ function ui.main()
             end
 
             ImGui.PopStyleColor()
+
+            ImGui.NewLine()
+
+            ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Config Presets:')
+
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 1, 1))
+
+            local presetList = getPresetList()
+            
+            
+
+            if ImGui.BeginCombo("##presets:", presetList[selectedPresetIndex], ImGuiComboFlags.WidthFitPreview) then
+                for i, option in ipairs(presetList) do
+                    local isSelected = (i == selectedPresetIndex)
+            
+                    ImGui.PushStyleColor(ImGuiCol.Text, isSelected and ImVec4(0, 1, 1, 1) or ImGui.GetStyleColorVec4(ImGuiCol.Text))
+            
+                    if ImGui.Selectable(option, isSelected) then
+                        selectedPresetIndex = i
+                    end
+            
+                    ImGui.PopStyleColor()
+            
+                    -- Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if isSelected then
+                        ImGui.SetItemDefaultFocus()
+                    end
+                end
+            
+                ImGui.EndCombo()
+            end
+            
+            
+            
+
+            ImGui.PopStyleColor()
+
+            local function savePreset(presetname)
+                mq.pickle(mq.luaDir .. '\\shm420\\presets\\' .. presetname .. '.lua',state.config)
+                printf('\ay[\amSHM\ag420\ay]\am:\at Saving Preset\ar %s',presetname)
+            end
+
+            local function deletePreset(presetname)
+                local fileToDelete = mq.luaDir .. '\\shm420\\presets\\' .. presetname .. '.lua'
+
+                -- Attempt to remove the file
+                local success, err = os.remove(fileToDelete)
+                
+                -- Check if the removal was successful
+                if success then
+                    print('\ay[\amSHM\ag420\ay]\am:\atPreset deleted successfully.')
+                else
+                    print('\ay[\amSHM\ag420\ay]\am:\atError deleting preset:', err)
+                end
+            end
+
+            local function loadPreset(presetname)
+                local presetPath = mq.luaDir .. '\\shm420\\presets\\' .. presetname .. '.lua'
+                local presetFile, errorMsg = loadfile(presetPath)
+            
+                if presetFile then
+                    local success, presetConfig = pcall(presetFile)
+                    if success and type(presetConfig) == 'table' then
+                        state.config = presetConfig
+                        print('\ay[\amSHM\ag420\ay]\am:\atLoaded preset: ' .. presetname)
+                    else
+                        print('\ay[\amSHM\ag420\ay]\am:\atError loading preset: ' .. presetname .. '. Invalid format.')
+                    end
+                else
+                    print('\ay[\amSHM\ag420\ay]\am:\atError loading preset: ' .. presetname .. '. ' .. errorMsg)
+                end
+            end
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 20)
+            
+            -- Button to load the selected preset
+
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 0, 1))
+            if ImGui.Button("Load\nPreset",BUTTON_SIZE,BUTTON_SIZE) then
+                local selectedPreset = presetList[selectedPresetIndex]
+                if selectedPreset then
+                    loadPreset(selectedPreset)
+                end
+            end
+            ImGui.PopStyleColor()
+
+            ImGui.SameLine()
+
+            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(1, 0, 0, 1))
+
+
+            if ImGui.Button("Delete\nPreset",BUTTON_SIZE,BUTTON_SIZE) then
+                local selectedPreset = presetList[selectedPresetIndex]
+                deletePreset(selectedPreset)  -- Implement a function to delete the preset
+            end
+
+            ImGui.PopStyleColor()
+
+            ImGui.NewLine()
+            ImGui.NewLine()
+            local windowHeight = ImGui.GetWindowHeight()
+            local buttonPosY = windowHeight - 55  -- Adjust the spacing as needed
+        
+            ImGui.SetCursorPosY(buttonPosY)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 12) 
+            
+            
+            -- Button to load the selected preset
+            if ImGui.Button("Save Preset:") then
+                local newPresetName = newPresetNameBuffer
+                savePreset(newPresetName)  -- Implement a function to save the new preset
+            end
+
+            ImGui.SameLine()
+
+            local inputTextCallbackPreset = function(inputText)
+                newPresetNameBuffer = inputText
+            end
+            local newText, changedPreset = ImGui.InputText("##NewPresetName", newPresetNameBuffer, ImGuiInputTextFlags.None, inputTextCallbackPreset)
+
+            if changedPreset then
+                newPresetNameBuffer = newText
+            end
+            
+            
 
             ImGui.Columns(1)
             ImGui.EndTabItem()
@@ -1185,11 +1329,13 @@ function ui.main()
                 if tostring(state.config.Spells.MiscGemRemem) ~= 'On' then 
                     print('\ay[\amSHM\ag420\ay]\am:\at Remem Spells : On')
                     state.config.Spells.MiscGemRemem = 'On'
+                    state.canmem = true
                 end
             else
                 if tostring(state.config.Spells.MiscGemRemem) == 'On' then
                     print('\ay[\amSHM\ag420\ay]\am:\at Remem Spells : Off')
                     state.config.Spells.MiscGemRemem = 'Off'
+                    state.canmem = false
                 end
             end
 
@@ -2017,7 +2163,7 @@ function ui.main()
                 "AASingleTurgurs",
                 "AAMalo",
                 "AETurgurs",
-                "AEMalo",
+                "AEMaloAA",
                 "Melee",
                 "Slow",
                 "TimeAntithesis"
@@ -2039,14 +2185,28 @@ function ui.main()
                 if ImGui.Checkbox(key, value) then
                     ImGui.SameLine()
                     ImGui.NewLine()
-                    if tostring(state.config.Combat[key]) ~= 'On' then
-                        print(string.format('\ay[\amSHM\ag420\ay]\am:\at %s: On', key))
-                        state.config.Combat[key] = 'On'
+                    if key == 'Melee' or key == 'TimeAntithesis' then
+                        if tostring(state.config.Combat[key]) ~= 'On' then
+                            print(string.format('\ay[\amSHM\ag420\ay]\am:\at %s: On', key))
+                            state.config.Combat[key] = 'On'
+                        end
+                    else
+                        if tostring(state.config.Shaman[key]) ~= 'On' then
+                            print(string.format('\ay[\amSHM\ag420\ay]\am:\at %s: On', key))
+                            state.config.Shaman[key] = 'On'
+                        end
                     end
                 else
-                    if tostring(state.config.Combat[key]) == 'On' then
-                        print(string.format('\ay[\amSHM\ag420\ay]\am:\at %s: Off', key))
-                        state.config.Combat[key] = 'Off'
+                    if key == 'Melee' or key == 'TimeAntithesis' then
+                        if tostring(state.config.Combat[key]) == 'On' then
+                            print(string.format('\ay[\amSHM\ag420\ay]\am:\at %s: Off', key))
+                            state.config.Combat[key] = 'Off'
+                        end
+                    else
+                        if tostring(state.config.Shaman[key]) == 'On' then
+                            print(string.format('\ay[\amSHM\ag420\ay]\am:\at %s: Off', key))
+                            state.config.Shaman[key] = 'Off'
+                        end
                     end
                 end
             end
@@ -2124,7 +2284,7 @@ function ui.main()
             
                 if newComboIndex ~= currentIndex then
                     value = dropdownOptions[newComboIndex]
-                    print(string.format('\ay[\am%s\ag420\ay]\am:\at %s: %s', key:upper(), key, value))
+                    print(string.format('\ay[\amSHM\ag420\ay]\am:\at %s: %s', key, value))
                     if key == "DDs" or key == "DoTs" then
                         state.config.Combat[key] = value
                     else
@@ -2249,7 +2409,43 @@ function ui.main()
                         state.config.Shaman.AESlow = string.format("On|%s", newNumericValueAESlow)
                     end
                 end
-            elseif state.config.Shaman.AESlow:match('On|%d+') ~= nil then state.config.Shaman.AESlow = string.format('Off|%s',aeslowValue) end
+            elseif state.config.Shaman.AESlow:match('On|%d+') ~= nil then 
+                state.config.Shaman.AESlow = string.format('Off|%s',aeslowValue) 
+            end
+
+            local aemaloCheckbox = state.config.Shaman.AEMalo:match('On|%d+') ~= nil
+            local aemaloValue = tonumber(state.config.Shaman.AEMalo:match('|(%d+)')) or 0
+
+            if ImGui.Checkbox("AEMalo", aemaloCheckbox) then
+                if state.config.Shaman.AEMalo:match('On|%d+') == nil then state.config.Shaman.AEMalo = string.format("On|%s",aemaloValue) end
+
+                ImGui.SameLine()
+                ImGui.Text("Min Targets")
+                ImGui.SameLine()
+                ImGui.SetNextItemWidth(35)
+                
+                local inputTextBufferAEMalo = tostring(aemaloValue)
+                local inputTextBufferTempAEMalo = inputTextBufferAEMalo
+                
+                local inputTextCallbackAEMalo = function(inputText)
+                    inputTextBufferTempAEMalo = inputText
+                end
+                
+                local newAEMaloValue, changedAEMaloValue = ImGui.InputText("##AEMaloInput", inputTextBufferTempAEMalo, ImGuiInputTextFlags.CharsDecimal, inputTextCallbackAEMalo)
+                
+                if changedAEMaloValue then
+                    inputTextBufferTempAEMalo = newAEMaloValue
+                end
+                
+                if ImGui.IsItemDeactivated() then
+                    local newNumericValueAEMalo = tonumber(inputTextBufferTempAEMalo)
+                    if newNumericValueAEMalo then
+                        state.config.Shaman.AEMalo = string.format("On|%s", newNumericValueAEMalo)
+                    end
+                end
+            elseif state.config.Shaman.AEMalo:match('On|%d+') ~= nil then 
+                state.config.Shaman.AEMalo = string.format('Off|%s',aemaloValue) 
+            end
 
             ImGui.Columns(1)
 

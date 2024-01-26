@@ -9,7 +9,7 @@ local function getdebuffs()
     return {
     aamalo = mq.TLO.Me.AltAbility("Malaise").ID(),
     singleturgurs = mq.TLO.Me.AltAbility("Turgur's Swarm").ID(),
-    aemalo = mq.TLO.Me.AltAbility("Wind of Malaise").ID(),
+    aemalo = mq.TLO.Spell(state.config.Combat.AEMalo).Name(),
     aeslow = mq.TLO.Spell(state.config.Combat.AESlow).Name(),
     aeturgurs = mq.TLO.Me.AltAbility("Turgur's Virulent Swarm").ID(),
     cripple = mq.TLO.Spell(state.config.Combat.Cripple).Name(),
@@ -26,6 +26,7 @@ local function doDebuffs()
     state.debuffing = true
     local aggroCount = lib.aggroCount()
     local aeslowtarmin = tonumber(string.match(state.config.Shaman.AESlow, "%d+"))
+    local aemalotarmin = tonumber(string.match(state.config.Shaman.AEMalo, "%d+"))
     if aggroCount > 0 then
         write.Debug('debuff routine')
         for i = 1,20 do
@@ -40,9 +41,9 @@ local function doDebuffs()
                 end
                 local haslongslow = mq.TLO.Target.Buff("Turgur's Insects")()
                 local npccount = mq.TLO.SpawnCount("npc radius 100 zradius 10")()
+                local slowtarget = mq.TLO.Target.Type() == 'NPC' and mq.TLO.Target.Aggressive() and mq.TLO.Target.PctHPs() >= tonumber(state.config.Combat.DebuffStop) and mq.TLO.Target.LineOfSight() and mq.TLO.Target.PctHPs() <= tonumber(state.config.Combat.DebuffAt)
                 local hasmalo = mq.TLO.Target.Maloed.ID()
                 local hascripple = mq.TLO.Target.Crippled.ID()
-                local slowtarget = mq.TLO.Target.Type() == 'NPC' and mq.TLO.Target.Aggressive() and mq.TLO.Target.PctHPs() >= tonumber(state.config.Combat.DebuffStop) and mq.TLO.Target.LineOfSight() and mq.TLO.Target.PctHPs() <= tonumber(state.config.Combat.DebuffAt)
                 if string.match(tostring(state.config.Shaman.AESlow), "On|%d+") and aggroCount >= npccount and npccount >= aeslowtarmin and not haslongslow and (mq.TLO.Cast.Ready(debuffs.aeslow)() or mq.TLO.Me.AltAbilityReady("Turgur's Virulent Swarm")()) and slowtarget then
                     if string.match(tostring(state.config.Shaman.AETurgurs), "On") and mq.TLO.Me.AltAbilityReady("Turgur's Virulent Swarm")() then
                         write.Debug('\apI AM AESLOWING> THERE ARE %s MOBS ON MY XTAR AND %s MOBS IN RANGE AE RANGE. I SHOULD ONLY BE CASTING IF %s > %s and %s > 3',aggroCount,npccount,aggroCount,npcount,npccount)
@@ -64,7 +65,7 @@ local function doDebuffs()
                             if state.paused then return end
                         end
                     end
-                elseif string.match(tostring(state.config.Shaman.Slow), "On") and not haslongslow and mq.TLO.Me.AltAbilityReady(debuffs.singleturgurs)() and slowtarget and tostring(state.config.Shaman.AASingleTurgurs) == 'On' then
+                elseif tostring(state.config.Shaman.Slow) == 'On' and not haslongslow and mq.TLO.Me.AltAbilityReady(debuffs.singleturgurs)() and slowtarget and tostring(state.config.Shaman.AASingleTurgurs) == 'On' then
                     queueAbility(debuffs.singleturgurs,'alt',tar,'debuff')
                     mq.delay(50)
                     heals.doheals()
@@ -74,7 +75,7 @@ local function doDebuffs()
                         if state.paused then return end
                     end
 
-                elseif string.match(tostring(state.config.Shaman.Slow), "On") and not haslongslow and mq.TLO.Cast.Ready(debuffs.slow)() and slowtarget then
+                elseif tostring(state.config.Shaman.Slow) == 'On' and not haslongslow and mq.TLO.Cast.Ready(debuffs.slow)() and slowtarget then
                     queueAbility(debuffs.slow,'spell',tar,'debuff')
                     mq.delay(50)
                     heals.doheals()
@@ -84,7 +85,7 @@ local function doDebuffs()
                         if state.paused then return end
                     end
 
-                elseif string.match(tostring(state.config.Shaman.Slow), "On") and not haslongslow and mq.TLO.Cast.Ready("Time's Antithesis")() and slowtarget then
+                elseif tostring(state.config.Shaman.Slow) == 'On' and not haslongslow and mq.TLO.Cast.Ready("Time's Antithesis")() and slowtarget then
                     queueAbility("Time's Antithesis","item",tar,'debuff')
                     mq.delay(50)
                     heals.doheals()
@@ -93,6 +94,26 @@ local function doDebuffs()
                         write.Trace('Need Heal: %s',state.needheal)
                         if state.paused then return end
                     end
+                elseif string.match(tostring(state.config.Shaman.AEMalo), "On|%d+") and aggroCount >= npccount and npccount >= aemalotarmin and slowtarget and not hasmalo and (mq.TLO.Me.AltAbilityReady("Wind of Malaise")() or mq.TLO.Me.Gem(debuffs.aemalo)() or state.canmem == true) then
+                    if string.match(tostring(state.config.Shaman.AEMaloAA), "On") and mq.TLO.Me.AltAbilityReady("Wind of Malaise")() then
+                        queueAbility(mq.TLO.AltAbility('Wind of Malaise').ID(),'alt',tar,'debuff')
+                        mq.delay(50)
+                        heals.doheals()
+                        while state.needheal == true do 
+                            heals.doheals()
+                            write.Trace('Need Heal: %s',state.needheal)
+                            if state.paused then return end
+                        end
+                    elseif mq.TLO.Me.Gem(debuffs.aemalo)() or state.canmem == true then 
+                        queueAbility(debuffs.aemalo,'spell',tar,'debuff')
+                        mq.delay(50)
+                        heals.doheals()
+                        while state.needheal == true do 
+                            heals.doheals() 
+                            write.Trace('Need Heal: %s',state.needheal)
+                            if state.paused then return end
+                        end
+                    end        
 
                 elseif not hasmalo and tostring(state.config.Shaman.AAMalo) == 'On' and mq.TLO.Cast.Ready("Malaise")() and slowtarget then
                     queueAbility(debuffs.aamalo,'alt',tar,'debuff')

@@ -27,18 +27,12 @@ end
 
 function M.checkPet()
     if not mq.TLO.Me.GroupAssistTarget.ID() then return end
-    local petRange = tonumber(config.Pet.PetRange)
-    local petAssistThreshold = tonumber(state.config.Pet.PetAssist)
+    if state.burning and not mq.TLO.Me.TributeActive() and tostring(state.config.Burn.UseTribute) == 'On' then mq.cmd('/tribute personal on') end
+    if not state.burning and mq.TLO.Me.TributeActive() and tostring(state.config.Burn.UseTribute) == 'On' then mq.cmd('/tribute personal off') end
 
-    if mq.TLO.Me.GroupAssistTarget.ID() ~= 0 and
-        mq.TLO.Me.GroupAssistTarget.Aggressive() and
-        (not mq.TLO.Pet.Combat() or (mq.TLO.Pet.Target.ID() ~= mq.TLO.Me.GroupAssistTarget.ID())) and
-        mq.TLO.Me.GroupAssistTarget.Distance3D() and petRange and
-        mq.TLO.Me.GroupAssistTarget.PctHPs() and petAssistThreshold and
-        mq.TLO.Me.GroupAssistTarget.Distance3D() <= petRange and
-        mq.TLO.Me.GroupAssistTarget.PctHPs() or 101 <= petAssistThreshold then
+    if mq.TLO.Me.Pet() and mq.TLO.Me.GroupAssistTarget.ID ~= 0 and mq.TLO.Me.GroupAssistTarget.Aggressive() and (mq.TLO.Me.GroupAssistTarget.PctHPs() or 100) <= tonumber(state.config.Pet.PetAssist) and (not mq.TLO.Pet.Combat() or mq.TLO.Pet.Target.ID() ~= mq.TLO.Me.GroupAssistTarget.ID()) and (mq.TLO.Me.GroupAssistTarget.Distance3D() or 500) <= tonumber(state.config.Pet.PetRange) then
         mq.cmdf('/squelch /pet attack %s', mq.TLO.Me.GroupAssistTarget.ID())
-end
+    end
 
 end
 
