@@ -128,6 +128,41 @@ local function getPresetList()
     return presetList
 end
 
+local function displayStateTable(windowName, dataTable)
+    -- Begin the child window
+    if ImGui.BeginChild(windowName, 1000, 1000, ImGuiChildFlags.FrameStyle) then
+        for key, value in pairs(dataTable) do
+            if type(value) == "table" then
+                -- Display a collapsing header for each table
+                if ImGui.CollapsingHeader(key) then
+                    -- Recursively display nested tables
+                    displayStateTable(key, value)
+                end
+            else
+                -- Display key-value pairs
+                ImGui.Text(string.format("%s: %s", key, tostring(value)))
+            end
+        end
+    end
+    -- End the child window outside the loop
+    ImGui.EndChild()
+end
+
+-- Example ImGui window with a button to display state
+local function renderPopup()
+    if ImGui.Button("Show State") then
+        ImGui.OpenPopup("State_Popup")
+    end
+
+    if ImGui.BeginPopup("State_Popup", ImGuiWindowFlags.Resizable) then
+        displayStateTable("state", state)
+        ImGui.EndPopup()
+    end
+end
+
+
+
+
 
 local function popStyles()
     ImGui.PopStyleColor(22)
@@ -359,6 +394,8 @@ function ui.main()
 
             ImGui.NewLine()
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Debug Info:')
+            ImGui.SameLine()
+            renderPopup()
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'# in Buff Queue:')
             ImGui.SameLine()
@@ -401,6 +438,7 @@ function ui.main()
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Burning:')
             ImGui.SameLine()
             ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(state.burning))
+
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Medding:')
             ImGui.SameLine()
