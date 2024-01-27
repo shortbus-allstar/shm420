@@ -59,8 +59,9 @@ local state = {
     loglevel = 'error',
     rezTimer = timer:new(3000),
     clearRezTimer = timer:new(15000),
+    timesinceBuffed = {},
     recastTimer = nil,
-    version = 'v1.0.2-beta',
+    version = 'v1.0.3-beta',
     githubver = getGitHubVersion()
 }
 

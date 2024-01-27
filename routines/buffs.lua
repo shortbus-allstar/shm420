@@ -1,6 +1,5 @@
 local mq = require('mq')
 local state = require('utils.state')
-local timer = require('utils.timer')
 local queueAbility = require('utils.queue')
 local lib = require('utils.lib')
 local Write = require('utils.Write')
@@ -18,11 +17,17 @@ local function constructLongBuffsTable()
     }
 end
 
-local checktimer = timer:new(600000)
-checktimer:reset(0)
+state.timesinceBuffed = {}
 
-local slothTimer = timer:new(60000)
-slothTimer:reset(0)
+function M.checkstacktimers(toon)
+    if (mq.gettime() - (state.timesinceBuffed[toon] and state.timesinceBuffed[toon].focus and state.timesinceBuffed[toon].focus.buffedat or mq.gettime())) > 6000000 then
+        state.timesinceBuffed[toon].focus.canbuff = true
+    elseif (mq.gettime() - (state.timesinceBuffed[toon] and state.timesinceBuffed[toon].sow and state.timesinceBuffed[toon].sow.buffedat or mq.gettime())) > 6000000 then
+        state.timesinceBuffed[toon].sow.canbuff = true
+    elseif (mq.gettime() - (state.timesinceBuffed[toon] and state.timesinceBuffed[toon].regen and state.timesinceBuffed[toon].regen.buffedat or mq.gettime())) > 6000000 then
+        state.timesinceBuffed[toon].regen.canbuff = true
+    end
+end
 
 function M.checkCanni()
     if mq.TLO.Me.PctMana() < tonumber(state.config.Shaman.AACanniAt) and mq.TLO.Me.AltAbilityReady("Cannibalization")() then
@@ -120,22 +125,80 @@ function M.checkBuffQueue()
 
     for i = 1, grpSize do
         local toon = mq.TLO.Group.Member(i).Name()
-        if mq.TLO.DanNet(toon).O(focus)() and mq.TLO.DanNet(toon).O(focus)() == 'NULL' and tostring(state.config.Shaman.Focus) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Class.ShortName() ~= 'CLR' and mq.TLO.Group.Member(i).Class.ShortName() ~= 'WIZ' and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' then
-            queueAbility(longbuffs.focus,'spell',mq.TLO.Group.Member(i).ID(),'buff')
-            return
-        elseif mq.TLO.DanNet(toon).O(focus)() and mq.TLO.DanNet(toon).O(focus)() == 'NULL' and tostring(state.config.Shaman.Focus) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and (mq.TLO.Group.Member(i).Class.ShortName() == 'CLR' or mq.TLO.Group.Member(i).Class.ShortName() == 'WIZ') and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' then
-            mq.cmd('/squelch /mqt id %s',mq.TLO.Group.Member(i).ID())
-            mq.delay(500)
-            if not mq.TLO.Target.Buff(mq.TLO.Spell(tostring(state.config.Buffs.AgiBuff)).RankName()) then
+        if toon and not state.timesinceBuffed[toon] then 
+            state.timesinceBuffed[toon] = {}
+            state.timesinceBuffed[toon].focus = {
+                buffedat = mq.gettime(),    
+                canbuff = true
+            } 
+            state.timesinceBuffed[toon].sow = {
+                buffedat = mq.gettime(),    
+                canbuff = true
+            } 
+            state.timesinceBuffed[toon].regen = {
+                buffedat = mq.gettime(),    
+                canbuff = true
+            } 
+        end
+        M.checkstacktimers(toon)
+        if mq.TLO.DanNet(toon).O(focus)() and mq.TLO.DanNet(toon).O(focus)() == 'NULL' and tostring(state.config.Shaman.Focus) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' and (state.timesinceBuffed[toon].focus.canbuff == nil or state.timesinceBuffed[toon].focus.canbuff == true) then
+            if (mq.gettime() - state.timesinceBuffed[toon].focus.buffedat) < 60000 then
+                Write.Error('checking stacking...')
+                mq.cmdf('/squelch /mqt id %s',mq.TLO.Group.Member(i).ID())
+                mq.delay(500)
+                if not mq.TLO.Spell(state.config.Buffs.FocusBuff).StacksTarget() and mq.TLO.DanNet(toon).O(focus)() == 'NULL' then state.timesinceBuffed[toon].focus.canbuff = false return end
+                state.timesinceBuffed[toon].focus = {
+                    buffedat = mq.gettime(),    
+                    canbuff = true
+                }
                 queueAbility(longbuffs.focus,'spell',mq.TLO.Group.Member(i).ID(),'buff')
                 return
+            else
+                state.timesinceBuffed[toon].focus = {
+                    buffedat = mq.gettime(),    
+                    canbuff = true
+                }
+                queueAbility(longbuffs.focus,'spell',mq.TLO.Group.Member(i).ID(),'buff')
             end
-        elseif mq.TLO.DanNet(toon).O(sow)() and mq.TLO.DanNet(toon).O(sow)() == 'NULL' and tostring(state.config.Shaman.SoW) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' then
-            queueAbility(longbuffs.sow,'spell',mq.TLO.Group.Member(i).ID(),'buff')
-            return
-        elseif mq.TLO.DanNet(toon).O(regen)() and mq.TLO.DanNet(toon).O(regen)() == 'NULL' and tostring(state.config.Shaman.Regen) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' then
-            queueAbility(longbuffs.regen,'spell',mq.TLO.Group.Member(i).ID(),'buff')
-            return
+                
+        elseif mq.TLO.DanNet(toon).O(sow)() and mq.TLO.DanNet(toon).O(sow)() == 'NULL' and tostring(state.config.Shaman.SoW) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' and (state.timesinceBuffed[toon].sow.canbuff == nil or state.timesinceBuffed[toon].sow.canbuff) then
+            if (mq.gettime() - state.timesinceBuffed[toon].sow.buffedat) < 60000 then
+                Write.Error('checking stacking...')
+                mq.cmdf('/squelch /mqt id %s',mq.TLO.Group.Member(i).ID())
+                mq.delay(500)
+                if not mq.TLO.Spell(state.config.Buffs.SoW).StacksTarget() and mq.TLO.DanNet(toon).O(sow)() == 'NULL' then state.timesinceBuffed[toon].sow.canbuff = false return end
+                state.timesinceBuffed[toon].sow = {
+                    buffedat = mq.gettime(),    
+                    canbuff = true
+                }
+                queueAbility(longbuffs.sow,'spell',mq.TLO.Group.Member(i).ID(),'buff')
+                return
+            else
+                state.timesinceBuffed[toon].sow = {
+                    buffedat = mq.gettime(),    
+                    canbuff = true
+                }
+                queueAbility(longbuffs.sow,'spell',mq.TLO.Group.Member(i).ID(),'buff')
+            end
+        elseif mq.TLO.DanNet(toon).O(regen)() and mq.TLO.DanNet(toon).O(regen)() == 'NULL' and tostring(state.config.Shaman.Regen) == 'On' and mq.TLO.Group.Member(i).ID() ~= 0 and mq.TLO.Group.Member(i).Distance3D() < 100 and mq.TLO.Group.Member(i).Type() ~= 'Corpse' and (state.timesinceBuffed[toon].regen.canbuff == nil or state.timesinceBuffed[toon].regen.canbuff) then
+            if (mq.gettime() - state.timesinceBuffed[toon].regen.buffedat) < 60000 then
+                Write.Error('checking stacking...')
+                mq.cmdf('/squelch /mqt id %s',mq.TLO.Group.Member(i).ID())
+                mq.delay(500)
+                if not mq.TLO.Spell(state.config.Buffs.Regen).StacksTarget() then state.timesinceBuffed[toon].regen.canbuff = false return end
+                state.timesinceBuffed[toon].regen = {
+                    buffedat = mq.gettime(),    
+                    canbuff = true
+                }
+                queueAbility(longbuffs.regen,'spell',mq.TLO.Group.Member(i).ID(),'buff')
+                return
+            else
+                state.timesinceBuffed[toon].regen = {
+                    buffedat = mq.gettime(),    
+                    canbuff = true
+                }
+                queueAbility(longbuffs.regen,'spell',mq.TLO.Group.Member(i).ID(),'buff')
+            end
         end
     end
 
