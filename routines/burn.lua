@@ -1,12 +1,10 @@
 local mq = require('mq')
 local state = require('utils.state')
-local timer = require('utils.timer')
-local heals = require('routines.heal')
-local queueAbility = require('utils.queue')
 local write = require('utils.Write')
 local M = {}
 
 local function parseUserInput(input)
+    write.Trace('parse user input')
     -- Define a pattern to capture two strings separated by '|'
     local pattern = "([^|]+)|([^|]+)"
 
@@ -23,6 +21,7 @@ local function parseUserInput(input)
 end
 
 function M.getBurns()
+    write.Trace('getting burns')
     local bburn1abil, bburn1type = parseUserInput(tostring(state.config.Burn.BBurn1))
     local bburn2abil, bburn2type = parseUserInput(tostring(state.config.Burn.BBurn2))
     local bburn3abil, bburn3type = parseUserInput(tostring(state.config.Burn.BBurn3))

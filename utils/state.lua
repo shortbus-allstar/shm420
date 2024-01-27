@@ -60,7 +60,7 @@ local state = {
     rezTimer = timer:new(3000),
     clearRezTimer = timer:new(15000),
     recastTimer = nil,
-    version = 'v1.0.1-rel',
+    version = 'v1.0.2-beta',
     githubver = getGitHubVersion()
 }
 
@@ -70,7 +70,9 @@ function state.updateLoopState()
         print('\ay[\amSHM\ag420\ay]\am:\at Not in game, putting the lighter down...')
         mq.exit()
     end
+    write.Trace('Updating Loop State')
     mq.doevents()
+    write.Trace('Events Loop State')
     write.loglevel = state.loglevel
     state.actionTaken = false
     state.loop = {

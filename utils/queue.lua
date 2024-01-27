@@ -7,12 +7,15 @@ local abilityQueue = {}
 local function processQueue()
     write.Debug('Entering ProcessQueue')
     state.updateLoopState()
+    write.Trace('Past Update State')
     if state.paused then return end
     if state.loop.Invis and mq.TLO.Me.CombatState() ~= 'COMBAT' then return end
+    write.Trace('Past pause and invis check')
     if #abilityQueue == 0 then
         write.Debug('Queue Empty')
         return
     end
+    write.Trace('Ability Queue past')
 
     if state.dead == true then 
         abilityQueue = {}
@@ -20,12 +23,17 @@ local function processQueue()
         return
     end
 
+    write.Trace('past dead check')
+
     local abilityData = abilityQueue[1]
+    write.Trace('ability data set')
     local abilID, abiltype, abiltarget, category = abilityData.abilID, abilityData.abiltype, abilityData.abiltarget, abilityData.category
     state.interrupted = false
 
     local burn = require('routines.burn')
+    write.Trace('require burn routine')
     local burns = burn.getBurns()
+    write.Trace('burns.getBurns')
     write.Warn('should i burn BB %s SB %s',burns.BBIf,burns.SBIf)
 
     if mq.TLO.Me.CombatState() == 'COMBAT' and (burns.BBIf ~= '0' or tostring(state.config.Burn.BurnAllNameds) == 'Big') and not state.burning then
