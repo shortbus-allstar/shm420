@@ -19,6 +19,25 @@ local spelltabOffset = 270
 local newPresetNameBuffer = ""
 local selectedPresetIndex = 1
 
+local selectedKey = ""
+local selectedCategory = "Buffs"
+local selectedGem = "1"
+
+            
+local categories = { "Buffs", "Heals", "DPS", "Pet", "Debuffs" }
+
+local keysByCategory = {
+    Buffs = { "Canni", "Focus", "SoW", "Panther", "Growth", "Sloth", "Regen", "Ward", "FocusBuff", "SelfDI" },
+    Heals = { "Panic1", "Panic2", "Panic3", "Panic4", "Panic5", "Heal1", "Heal2", "Heal3", "Heal4", "Heal5", "HealClicky1", "HealClicky2", "HealClicky3", "HoT", "PanicClick1", "PanicClick2", "GroupHeal1", "GroupHeal2", "GroupClick1", "GroupClick2", "DisSing", "PoiSing", "CorrSing", "CurseSing", "DisGrp", "PoiGrp", "CorrGrp", "CurseGrp" },
+    DPS = { "Gift", "DD1", "DD2", "DD3", "DPSClick1", "DPSClick2", "DoT1", "DoT2", "DoT3", "DoT4" },
+    Pet = { "PetSum", "PetShrink", "PetBuff1", "PetBuff2" },
+    Debuffs = { "AESlow", "Cripple", "Feralize", "AEMalo", "Malo", "UnresMalo", "Slow" },
+}
+
+local selectedCategoryIndex = 1
+local selectedKeyIndex = 1
+local selectedGemIndex = 1
+
 
 local CUSTOM_THEME = {
     windowbg = ImVec4(0.1, 0.2, 0.1, 0.9),
@@ -213,7 +232,7 @@ function ui.main()
 
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 30) 
 
-            classanim:SetTextureCell(696)
+            classanim:SetTextureCell(702)
             ImGui.DrawTextureAnimation(classanim,200,200)
 
             ImGui.SameLine()
@@ -228,7 +247,24 @@ function ui.main()
         
             ImGui.SetCursorPosY(buttonPosY)
 
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 75) 
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 12) 
+
+            if state.paused then
+                ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 0, 1))
+                if ImGui.Button(string.format('Resume\n     ' .. icons.FA_PLAY), BUTTON_SIZE, BUTTON_SIZE) then
+                    state.paused = false
+                end
+                ImGui.PopStyleColor()
+            else
+                ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(1, 0, 0, 1))
+                if ImGui.Button(string.format('Pause\n    ' .. icons.FA_PAUSE), BUTTON_SIZE, BUTTON_SIZE) then
+                    state.paused = true
+                    mq.cmd('/stopcast')
+                end
+                ImGui.PopStyleColor()
+            end
+            ImGui.SameLine()
+
             ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 1, 1))
 
             if ImGui.Button(string.format('Update\n     ' .. icons.FA_DOWNLOAD), BUTTON_SIZE * 2, BUTTON_SIZE) then
@@ -250,7 +286,12 @@ function ui.main()
 
             ImGui.PopStyleColor()
 
+            ImGui.SameLine()
 
+
+            if ImGui.Button(string.format('Reload\n     ' .. icons.FA_REFRESH), BUTTON_SIZE, BUTTON_SIZE) then
+                mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
+            end
             if state.version ~= tostring(state.githubver) then
                 local alpha = 0.5 * (1 + math.sin((frameCounter % flashInterval) / flashInterval * (2 * math.pi)))  -- Use a sine function for smooth fading
 
@@ -260,8 +301,6 @@ function ui.main()
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 70)
                 ImGui.TextColored(ImVec4(0, 1, 0, 1), "Using Latest Version")
             end
-
-            ImGui.NewLine()
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 40) 
 
             ImGui.Text('GitHub Version:') 
@@ -270,71 +309,96 @@ function ui.main()
             ImGui.Text(tostring(state.githubver)) 
             ImGui.PopStyleColor()
 
+            ImGui.NewLine()
+
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 8) 
 
-            local buttonLabel1 = "Set\nCamp"
-            if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
-                mq.cmd('/shm camp on')
+            local function updateConfig(category, key, gem)
+                if category == "Buffs" then
+                    state.config.Buffs[key] = mq.TLO.Me.Gem(gem)()
+                elseif category == "Heals" then
+                    if state.config.Spells[key] ~= nil then state.config.Spells[key] = mq.TLO.Me.Gem(gem)() end
+                    if state.config.Heals[key] ~= nil then state.config.Heals[key] = mq.TLO.Me.Gem(gem)() end
+                elseif category == "DPS" or category == "Pet" then
+                    state.config.Spells[key] = mq.TLO.Me.Gem(gem)()
+                elseif category == "Debuffs" then
+                    state.config.Combat[key] = mq.TLO.Me.Gem(gem)()
+                end
             end
-            ImGui.SameLine()
 
-            local buttonLabel2 = "Camp\nOff"
-            if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
-                mq.cmd('/shm camp off')
+            if ImGui.Button('Quick\nUpdate',55,55) then
+                print(selectedCategory,selectedKey,selectedGem)
+                updateConfig(selectedCategory,selectedKey,selectedGem)
             end
-            ImGui.SameLine()
-
-            local buttonLabel3 = "Chase\nOn"
-            if ImGui.Button(buttonLabel3, BUTTON_SIZE, BUTTON_SIZE) then
-                mq.cmd('/shm chase ofn')
+            
+            local function findIndex(array, value)
+                for i, v in ipairs(array) do
+                    if v == value then
+                        return i
+                    end
+                end
+                return 1 -- Default to the first element if not found
             end
+            
+            -- Draw first dropdown
             ImGui.SameLine()
-
-            local buttonLabel4 = "Chase\nOff"
-            if ImGui.Button(buttonLabel4, BUTTON_SIZE, BUTTON_SIZE) then
-                mq.cmd('/shm chase off')
-            end  
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 8) 
-
-            local buttonLabel5 = "Melee\nOn"
-            if ImGui.Button(buttonLabel5, BUTTON_SIZE, BUTTON_SIZE) then
-                mq.cmd('/shm melee on')
+            ImGui.SetNextItemWidth(100)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 3)
+            if ImGui.BeginCombo("Category", categories[selectedCategoryIndex], ImGuiComboFlags.None) then
+                for i, category in ipairs(categories) do
+                    local isSelected = (selectedCategoryIndex == i)
+                    if ImGui.Selectable(category, isSelected) then
+                        selectedCategoryIndex = i
+                        selectedKeyIndex = findIndex(keysByCategory[categories[selectedCategoryIndex]], selectedKey)
+                    end
+                    if isSelected then
+                        ImGui.SetItemDefaultFocus()
+                    end
+                end
+                ImGui.EndCombo()
             end
-            ImGui.SameLine()
+            
+            -- Draw second dropdown
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 72)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 30)
+            ImGui.SetNextItemWidth(100)
+            local keyOptions = keysByCategory[categories[selectedCategoryIndex]] or {}
+            
+            if ImGui.BeginCombo("Option", keyOptions[selectedKeyIndex] or "Select Key", ImGuiComboFlags.HeightSmall) then
+                for i, key in ipairs(keyOptions) do
+                    local isSelected = (selectedKeyIndex == i)
+                    if ImGui.Selectable(key, isSelected) then
+                        selectedKeyIndex = i
+                    end
+                end
+                ImGui.EndCombo()
+            end
 
-            local buttonLabel6 = "Melee\nOff"
-            if ImGui.Button(buttonLabel6, BUTTON_SIZE, BUTTON_SIZE) then
-                mq.cmd('/shm melee off')
-            end  
-            ImGui.SameLine()
-
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 72)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY())
+            ImGui.SetNextItemWidth(100)
+            local gemOptions = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'}
+            
+            if ImGui.BeginCombo("Gem #", gemOptions[selectedGemIndex], ImGuiComboFlags.HeightSmall) then
+                for i, key in ipairs(gemOptions) do
+                    local isSelected = (selectedGemIndex == i)
+                    if ImGui.Selectable(key, isSelected) then
+                        selectedGemIndex = i
+                    end
+                end
+                ImGui.EndCombo()
+            end
+            
+            selectedCategory = categories[selectedCategoryIndex]
+            selectedKey = keyOptions[selectedKeyIndex] or ""
+            selectedGem = gemOptions[selectedGemIndex]
+            
+            
+            
             
 
-            if state.paused then
-                ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 0, 1))
-                if ImGui.Button(string.format('Resume\n     ' .. icons.FA_PLAY), BUTTON_SIZE, BUTTON_SIZE) then
-                    state.paused = false
-                end
-                ImGui.PopStyleColor()
-            else
-                ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(1, 0, 0, 1))
-                if ImGui.Button(string.format('Pause\n    ' .. icons.FA_PAUSE), BUTTON_SIZE, BUTTON_SIZE) then
-                    state.paused = true
-                    mq.cmd('/stopcast')
-                end
-                ImGui.PopStyleColor()
-            end
-            ImGui.SameLine()
-
-            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 1, 1))
-
-            if ImGui.Button(string.format('Reload\n     ' .. icons.FA_REFRESH), BUTTON_SIZE, BUTTON_SIZE) then
-                mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
-            end
-
-            ImGui.PopStyleColor()
-
             ImGui.NextColumn()
+
 
             local function hpcolor()
                 if mq.TLO.Me.PctHPs() > 75 then return ImVec4(0,1,0,1) end
@@ -631,17 +695,6 @@ function ui.main()
             local newTextCanni, changedCanni = ImGui.InputText("##CanniInput", inputTextBufferCanni, ImGuiInputTextFlags.None, inputTextCallbackCanni)
             if changedCanni then
                 state.config.Buffs.Canni = newTextCanni
-            end
-
-            ImGui.Text("AgiBuff:")
-            ImGui.SameLine()
-            local inputTextBufferAgiBuff = state.config.Buffs.AgiBuff
-            local inputTextCallbackAgiBuff = function(inputText)
-                state.config.Buffs.AgiBuff = inputText
-            end
-            local newTextAgiBuff, changedAgiBuff = ImGui.InputText("##AgiBuffInput", inputTextBufferAgiBuff, ImGuiInputTextFlags.None, inputTextCallbackAgiBuff)
-            if changedAgiBuff then
-                state.config.Buffs.AgiBuff = newTextAgiBuff
             end
         
             ImGui.Text("Focus:")
@@ -1250,8 +1303,8 @@ function ui.main()
                 if tostring(state.config.General.ReturnToCamp) ~= 'On' then 
                     local chase = require('routines.campchase')
                     print('\ay[\amSHM\ag420\ay]\am:\at Camphere: On')
-                    state.config.General.ReturnToCamp = 'On'
                     state.config.General.ChaseAssist = 'Off'
+                    state.config.General.ReturnToCamp = 'On'
                     state.campxloc, state.campyloc, state.campzloc = chase.setcamp()
                 end
             else
@@ -1757,7 +1810,12 @@ function ui.main()
             end
             local newTextKeywordAll, changedKeywordAll = ImGui.InputText("##KeywordAllInput", inputTextBufferKeywordAll, ImGuiInputTextFlags.None, inputTextCallbackKeywordAll)
             if changedKeywordAll then
+                mq.unevent('keywordal')
                 state.config.Buffs.KeywordAll = newTextKeywordAll
+                local keywordal = string.format('#1# tells you, \'%s\'',state.config.Buffs.KeywordAll)
+                local events = require('utils.events')
+                mq.event('keywordal',keywordal, events.keywordall)
+                
             end
         
             ImGui.Text("KeywordCustom:")
@@ -1768,7 +1826,11 @@ function ui.main()
             end
             local newTextKeywordCustom, changedKeywordCustom = ImGui.InputText("##KeywordCustomInput", inputTextBufferKeywordCustom, ImGuiInputTextFlags.None, inputTextCallbackKeywordCustom)
             if changedKeywordCustom then
+                mq.unevent('keywordcu')
                 state.config.Buffs.KeywordCustom = newTextKeywordCustom
+                local keywordcu = string.format('#1# tells you, \'%s\'',state.config.Buffs.KeywordCustom)
+                local events = require('utils.events')
+                mq.event('keywordcu',keywordcu, events.keywordcustom)
             end
 
             if ImGui.TreeNode("Keyword Custom") then

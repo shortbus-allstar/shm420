@@ -8,8 +8,8 @@ function M.checkMelee()
     if tostring(state.config.Combat.Melee) == 'On' then
         if mq.TLO.Target.ID() ~= mq.TLO.Me.GroupAssistTarget.ID() then
             mq.cmdf('/squelch /mqt id %s',mq.TLO.Me.GroupAssistTarget.ID())
+            mq.delay(750)
         end
-        mq.delay(750)
         mq.cmd('/squelch /face')
         if mq.TLO.Target.ID() ~= 0 and not mq.TLO.Target.Dead() and mq.TLO.Target.PctHPs() <= tonumber(state.config.Combat.AttackAt) and mq.TLO.Target.Aggressive() and mq.TLO.Target.Distance3D() <= tonumber(config.Combat.AttackRange) then
             if not mq.TLO.Me.Combat() then 

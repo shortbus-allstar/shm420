@@ -79,7 +79,7 @@ local function processQueue()
 
     local combat = require('routines.combat')
 
-    combat.checkMelee()
+    if mq.TLO.Me.CombatState == 'COMBAT' then combat.checkMelee() end
 
     if abiltarget ~= mq.TLO.Target.ID() and state.config.Combat.Melee == 'On' and category == 'debuff' then
         mq.cmd('/attack off')

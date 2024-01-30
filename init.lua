@@ -1,10 +1,19 @@
+local mq = require('mq')
+local PackageMan = require('mq/PackageMan')
+
+
+PackageMan.Require('lua-cjson','cjson')
+PackageMan.Require('luasec','ssl')
+PackageMan.Require('luasocket','ltn12')
+PackageMan.Require('luafilesystem','lfs')
+
 local binds = require('utils.binds')
 local events = require('utils.events')
 local chase = require('routines.campchase')
 local cures = require('routines.cure')
 local heals = require('routines.heal')
 local lib = require('utils.lib')
-local mq = require('mq')
+
 local state = require('utils.state')
 local write = require('utils.Write')
 local handlePet = require('routines.pet')
@@ -14,11 +23,7 @@ local debuff = require('routines.debuff')
 local combat = require('routines.combat')
 local dps = require('routines.dps')
 local ui = require('interface.gui')
-local PackageMan = require('mq/PackageMan')
-PackageMan.Require('lua-cjson','cjson')
-PackageMan.Require('luasec','ssl')
-PackageMan.Require('luasocket','ltn12')
-PackageMan.Require('luafilesystem','lfs')
+
 
 
 state.updateLoopState()
