@@ -103,6 +103,7 @@ local function main()
                         combat.checkMelee()
                         debuff()
                         buffs.checkShortBuffs()
+                        heals.doheals()
                         dps.dodps()
                         if tostring(state.config.General.MedCombat) == 'On' and not mq.TLO.Melee.Combat() then
                             chase.doMed()

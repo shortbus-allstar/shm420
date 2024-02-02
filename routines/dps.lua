@@ -37,7 +37,7 @@ end
 
 function M.addtoQueue(spell,cat)
     local data = {}
-    if spell then write.Debug(spell) else write.Fatal('Shit went bad in your dps routine again mfker') return end
+    if spell then write.Debug(spell) else write.Error('Shit went bad in your dps routine again mfker') return end
     data.MemTime = mq.TLO.Spell(spell).RecastTime() + 1000
     data.ID = mq.TLO.Spell(spell).ID()
     data.cat = cat
@@ -84,16 +84,16 @@ function M.whichdpsspell()
         elseif not mq.TLO.Target.MyBuff(DoTs.dot4())() and mq.TLO.Cast.Ready(DoTs.dot4())() then
             queueAbility(DoTs.dot4.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DoT')
             return
-        elseif not mq.TLO.Me.Gem(DoTs.dot1())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot1())() then
+        elseif not mq.TLO.Me.Gem(DoTs.dot1())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot1())() and DoTs.dot1() then
             M.addtoQueue(DoTs.dot1(),type)
             return
-        elseif not mq.TLO.Me.Gem(DoTs.dot2())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot2())() then
+        elseif not mq.TLO.Me.Gem(DoTs.dot2())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot2())() and DoTs.dot2() then
             M.addtoQueue(DoTs.dot2(),type)
             return
-        elseif not mq.TLO.Me.Gem(DoTs.dot3())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot3())() then
+        elseif not mq.TLO.Me.Gem(DoTs.dot3())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot3())() and DoTs.dot3() then
             M.addtoQueue(DoTs.dot3(),type)
             return
-        elseif not mq.TLO.Me.Gem(DoTs.dot4())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot4())() then
+        elseif not mq.TLO.Me.Gem(DoTs.dot4())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot4())() and DoTs.dot4() then
             M.addtoQueue(DoTs.dot4(),type)
             return
         end
@@ -110,13 +110,13 @@ function M.whichdpsspell()
         elseif mq.TLO.Cast.Ready(DDs.dd3())() then
             queueAbility(DDs.dd3.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DD')
             return
-        elseif tostring(state.config.Spells.DD1) ~= 'NULL' and not mq.TLO.Me.Gem(DDs.dd1())() and state.canmem == true then
+        elseif tostring(state.config.Spells.DD1) ~= 'NULL' and not mq.TLO.Me.Gem(DDs.dd1())() and state.canmem == true and DDs.dd1() then
             M.addtoQueue(DDs.dd1(),type)
             return
-        elseif tostring(state.config.Spells.DD2) ~= 'NULL' and not mq.TLO.Me.Gem(DDs.dd2())() and state.canmem == true then
+        elseif tostring(state.config.Spells.DD2) ~= 'NULL' and not mq.TLO.Me.Gem(DDs.dd2())() and state.canmem == true and DDs.dd2() then
             M.addtoQueue(DDs.dd2(),type)
             return
-        elseif tostring(state.config.Spells.DD3) ~= 'NULL' and not mq.TLO.Me.Gem(DDs.dd3())() and state.canmem == true then
+        elseif tostring(state.config.Spells.DD3) ~= 'NULL' and not mq.TLO.Me.Gem(DDs.dd3())() and state.canmem == true and DDs.dd3() then
             M.addtoQueue(DDs.dd3(),type)
             return
         end

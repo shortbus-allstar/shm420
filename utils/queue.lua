@@ -79,7 +79,9 @@ local function processQueue()
 
     local combat = require('routines.combat')
 
-    if mq.TLO.Me.CombatState == 'COMBAT' then combat.checkMelee() end
+    if mq.TLO.Me.CombatState() == 'COMBAT' then 
+        combat.checkMelee() 
+    end
 
     if abiltarget ~= mq.TLO.Target.ID() and state.config.Combat.Melee == 'On' and category == 'debuff' then
         mq.cmd('/attack off')
@@ -188,22 +190,22 @@ local function processQueue()
         local heallist = heals.getheals()
         local _, healtype = heals.getHurt()
         write.Trace('Cast Timing Left: %s',stopTime:timeRemaining())
-        if healtype == heallist.panic and category ~= 'heal' and stopTime:timeRemaining() > 600 and tostring(state.config.Heals.InterruptToHeal) == 'On' and not (mq.TLO.Me.PctMana() < 20 and category =='canni') then
+        if healtype == heallist.panic and category ~= 'heal' and stopTime:timeRemaining() > 200 and tostring(state.config.Heals.InterruptToHeal) == 'On' and not (mq.TLO.Me.PctMana() < 10 and category =='canni') then
             mq.cmd('/stopcast')
             write.Info('Stopping cast, need to heal...')
-            mq.delay(100)
+            return
         end
 
         if category == 'heal' and mq.TLO.Target.ID() ~= 0 and mq.TLO.Target.Type() ~= 'Corpse' and mq.TLO.Target.PctHPs() > tonumber(state.config.Heals.CancelHealAt) then
             mq.cmd('/stopcast')
-            mq.delay(100)
             write.Info('Stopping cast, targets hp is > 95')
+            return
         end
 
         if (category == 'debuff' or category == 'heal' or category == 'DD' or category == 'HoT') and (mq.TLO.Target.Type() == 'Corpse' or mq.TLO.Target.ID() == 0) then
             mq.cmd('/stopcast')
-            mq.delay(100)
             write.Info('Stopping cast, target dead')
+            return
         end
 
         if state.dead == true then 
@@ -214,7 +216,6 @@ local function processQueue()
         
         combat.checkPet()
         mq.doevents()
-        mq.delay(100)
         write.Trace('Interrupted?: %s',state.interrupted)
         if state.interrupted == true then table.remove(abilityQueue, 1) return end
         state.updateLoopState()

@@ -115,7 +115,7 @@ local function doDebuffs()
                         end
                     end        
 
-                elseif not hasmalo and tostring(state.config.Shaman.AAMalo) == 'On' and mq.TLO.Cast.Ready("Malaise")() and slowtarget then
+                elseif not hasmalo and tostring(state.config.Shaman.AAMalo) == 'On' and mq.TLO.Cast.Ready("Malaise")() and slowtarget and tostring(state.config.Shaman.Malo) == 'On' or (tostring(state.config.Shaman.Malo) == 'Named' and mq.TLO.Target.Named()) then
                     queueAbility(debuffs.aamalo,'alt',tar,'debuff')
                     mq.delay(50)
                     heals.doheals()

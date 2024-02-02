@@ -10,10 +10,10 @@ function M.checkMelee()
             mq.cmdf('/squelch /mqt id %s',mq.TLO.Me.GroupAssistTarget.ID())
             mq.delay(750)
         end
-        mq.cmd('/squelch /face')
+        if mq.TLO.Target.Aggressive() then mq.cmd('/squelch /face') end
         if mq.TLO.Target.ID() ~= 0 and not mq.TLO.Target.Dead() and mq.TLO.Target.PctHPs() <= tonumber(state.config.Combat.AttackAt) and mq.TLO.Target.Aggressive() and mq.TLO.Target.Distance3D() <= tonumber(config.Combat.AttackRange) then
             if not mq.TLO.Me.Combat() then 
-                mq.cmd('/squelch /multiline ; /stick 10 hold uw ; /timed 5 /face ; /attack on')
+                if mq.TLO.Target.Aggressive() then mq.cmd('/squelch /multiline ; /stick 10 hold uw ; /timed 5 /face ; /attack on') end
                 mq.delay(500)
             end
             if mq.TLO.Target.ID() ~= 0 and mq.TLO.Target.Distance3D() > 11 then

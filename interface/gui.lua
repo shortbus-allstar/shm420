@@ -1042,18 +1042,37 @@ function ui.main()
                     state.config.Spells.Gift = newTextGift
                 end
 
-                for i = 1, 3 do
-                    local labelDD = string.format("Nuke %d:", i)
-                    ImGui.Text(labelDD)
-                    ImGui.SameLine()
-                    local inputTextBufferDD = state.config.Spells[string.format("DD%d", i)]
-                    local inputTextCallbackDD = function(inputText)
-                        state.config.Spells[string.format("DD%d", i)] = inputText
-                    end
-                    local newTextDD, changedDD = ImGui.InputText(string.format("##DDl%dInput", i), inputTextBufferDD, ImGuiInputTextFlags.None, inputTextCallbackDD)
-                    if changedDD then
-                        state.config.Spells[string.format("Heal%d", i)] = newTextDD
-                    end
+                ImGui.Text("Nuke 1:")
+                ImGui.SameLine()
+                local inputTextBufferDD1 = state.config.Spells.DD1
+                local inputTextCallbackDD1 = function(inputText)
+                    state.config.Spells.DD1 = inputText
+                end
+                local newTextDD1, changedDD1 = ImGui.InputText("##DD1Input", inputTextBufferDD1, ImGuiInputTextFlags.None, inputTextCallbackDD1)
+                if changedDD1 then
+                    state.config.Spells.DD1 = newTextDD1
+                end
+
+                ImGui.Text("Nuke 2:")
+                ImGui.SameLine()
+                local inputTextBufferDD2 = state.config.Spells.DD2
+                local inputTextCallbackDD2 = function(inputText)
+                    state.config.Spells.DD2 = inputText
+                end
+                local newTextDD2, changedDD2 = ImGui.InputText("##DD2Input", inputTextBufferDD2, ImGuiInputTextFlags.None, inputTextCallbackDD2)
+                if changedDD2 then
+                    state.config.Spells.DD2 = newTextDD2
+                end
+
+                ImGui.Text("Nuke 3:")
+                ImGui.SameLine()
+                local inputTextBufferDD3 = state.config.Spells.DD3
+                local inputTextCallbackDD3 = function(inputText)
+                    state.config.Spells.DD3 = inputText
+                end
+                local newTextDD3, changedDD3 = ImGui.InputText("##DD3Input", inputTextBufferDD3, ImGuiInputTextFlags.None, inputTextCallbackDD3)
+                if changedDD3 then
+                    state.config.Spells.DD3 = newTextDD3
                 end
 
                 ImGui.Text("DPS Click 1:")
@@ -1069,18 +1088,48 @@ function ui.main()
 
                 ImGui.NextColumn()
 
-                for i = 1, 4 do
-                    local labelDoT = string.format("DoT %d:", i)
-                    ImGui.Text(labelDoT)
-                    ImGui.SameLine()
-                    local inputTextBufferDoT = state.config.Spells[string.format("DoT%d", i)]
-                    local inputTextCallbackDoT = function(inputText)
-                        state.config.Spells[string.format("DoT%d", i)] = inputText
-                    end
-                    local newTextDoT, changeDoTD = ImGui.InputText(string.format("##DoTl%dInput", i), inputTextBufferDoT, ImGuiInputTextFlags.None, inputTextCallbackDoT)
-                    if changeDoTD then
-                        state.config.Spells[string.format("Heal%d", i)] = newTextDoT
-                    end
+                ImGui.Text("DoT 1:")
+                ImGui.SameLine()
+                local inputTextBufferDoT1 = state.config.Spells.DoT1
+                local inputTextCallbackDoT1 = function(inputText)
+                    state.config.Spells.DoT1 = inputText
+                end
+                local newTextDoT1, changedDoT1 = ImGui.InputText("##DoT1Input", inputTextBufferDoT1, ImGuiInputTextFlags.None, inputTextCallbackDoT1)
+                if changedDoT1 then
+                    state.config.Spells.DoT1 = newTextDoT1
+                end
+
+                ImGui.Text("DoT 2:")
+                ImGui.SameLine()
+                local inputTextBufferDoT2 = state.config.Spells.DoT2
+                local inputTextCallbackDoT2 = function(inputText)
+                    state.config.Spells.DoT2 = inputText
+                end
+                local newTextDoT2, changedDoT2 = ImGui.InputText("##DoT2Input", inputTextBufferDoT2, ImGuiInputTextFlags.None, inputTextCallbackDoT2)
+                if changedDoT2 then
+                    state.config.Spells.DoT2 = newTextDoT2
+                end
+
+                ImGui.Text("DoT 3:")
+                ImGui.SameLine()
+                local inputTextBufferDoT3 = state.config.Spells.DoT3
+                local inputTextCallbackDoT3 = function(inputText)
+                    state.config.Spells.DoT3 = inputText
+                end
+                local newTextDoT3, changedDoT3 = ImGui.InputText("##DoT3Input", inputTextBufferDoT3, ImGuiInputTextFlags.None, inputTextCallbackDoT3)
+                if changedDoT3 then
+                    state.config.Spells.DoT3 = newTextDoT3
+                end
+
+                ImGui.Text("DoT 4:")
+                ImGui.SameLine()
+                local inputTextBufferDoT4 = state.config.Spells.DoT4
+                local inputTextCallbackDoT4 = function(inputText)
+                    state.config.Spells.DoT4 = inputText
+                end
+                local newTextDoT4, changedDoT4 = ImGui.InputText("##DoT4Input", inputTextBufferDoT4, ImGuiInputTextFlags.None, inputTextCallbackDoT4)
+                if changedDoT4 then
+                    state.config.Spells.DoT4 = newTextDoT4
                 end
 
                 ImGui.Text("DPS Click 2:")

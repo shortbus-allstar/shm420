@@ -53,6 +53,7 @@ function M.chaseorcamp()
             mq.cmdf('/squelch /nav id %s',MA)
         end
     elseif tostring(state.config.General.ReturnToCamp) == 'On' and M.needToNav() and mq.TLO.Me.CombatState() ~= 'COMBAT' then
+        if not state.campxloc then state.campxloc, state.campyloc, state.campzloc = M.setcamp() end
         mq.cmdf('/nav loc %s %s %s',state.campyloc,state.campxloc,state.campzloc)
     end
 end

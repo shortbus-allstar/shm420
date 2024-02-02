@@ -20,7 +20,7 @@ local function getcurestable()
 end
 
 function M.dontcure(toon)
-    if (mq.TLO.DanNet(toon).O('Me.Buff[Sunset\'s Shadow]')() or mq.TLO.DanNet(toon).O('Me.Buff[Discordant Detritus]')() or mq.TLO.DanNet(toon).O('Me.Buff[Frenzied Venom]')() or mq.TLO.DanNet(toon).O('Me.Buff[Viscous Venom]')() or mq.TLO.DanNet(toon).O('Me.Buff[Shadowed Venom]')() or mq.TLO.DanNet(toon).O('Me.Buff[Curator\'s Revenge]')()) ~= 'NULL' then return true
+    if (mq.TLO.DanNet(toon).O('Me.Buff[Sunset\'s Shadow]')() ~= 'NULL' or mq.TLO.DanNet(toon).O('Me.Buff[Discordant Detritus]')() ~= 'NULL' or mq.TLO.DanNet(toon).O('Me.Buff[Frenzied Venom]')() ~= 'NULL' or mq.TLO.DanNet(toon).O('Me.Buff[Viscous Venom]')() ~= 'NULL' or mq.TLO.DanNet(toon).O('Me.Buff[Shadowed Venom]')() ~= 'NULL' or mq.TLO.DanNet(toon).O('Me.Buff[Curator\'s Revenge]')()) ~= 'NULL' then return true
     else return false
     end
 end

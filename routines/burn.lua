@@ -104,7 +104,7 @@ function M.addtoBurnQueue(name, typee)
     if name then
         write.Debug(name)
     else
-        write.Fatal('Shit went bad in your burn routine again mfker')
+        write.Error('Shit went bad in your burn routine again mfker')
         return
     end
     
