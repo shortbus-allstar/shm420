@@ -60,7 +60,7 @@ function heals.getHurt()
 
     if myHP < tonumber(state.config.Heals.HealPanicAt) then
         write.Trace('Self Panic')
-        return state.loop.ID, heallist.panic
+        return state.loop.ID, 'panic'
     elseif myHP < tonumber(state.config.Heals.GroupHealAt) then
         mostHurtName = mq.TLO.Me.CleanName()
         mostHurtID = state.loop.ID
@@ -76,7 +76,7 @@ function heals.getHurt()
         local distance = tank.Distance3D() or 300
         if tankHP < tonumber(state.config.Heals.HealPanicAt) and distance < 200 then 
             write.Trace('Tank Panic') 
-            return tank.ID(), heallist.panic 
+            return tank.ID(), 'panic'
         end
     end
     
@@ -109,7 +109,7 @@ function heals.getHurt()
                     if memberHP < tonumber(state.config.Heals.GroupHealAt) and distance < 80 then numHurt = numHurt + 1 end
                     if memberHP < tonumber(state.config.Heals.HealPanicAt) and distance < 200 then
                         write.Trace('Group Member: %s Panic',member.CleanName())
-                        return member.ID(), heallist.panic
+                        return member.ID(), 'panic'
                     end
                 end
 
@@ -132,23 +132,23 @@ function heals.getHurt()
         local distance = tank.Distance3D() or 300
         if tankHP < tonumber(state.config.Heals.HealTankAt) and distance < 200 then 
             write.Trace('Tank Regular') 
-            return tank.ID(), heallist.regular
+            return tank.ID(), 'regular'
         end
     end
 
     if numHurt >= tonumber(state.config.Heals.GroupHealTarCountMin) then
         write.Trace('Group Heals')
-        return mostHurtID, heallist.groupheals
+        return mostHurtID, 'group'
     elseif state.loop.PctHPs < tonumber(state.config.Heals.HealRegularAt) then
         write.Trace('Self Regular')
-        return state.loop.ID, heallist.regular
+        return state.loop.ID, 'regular'
     elseif mostHurtPct < tonumber(state.config.Heals.HealRegularAt) and mostHurtDistance < 200 then
         write.Trace('Group Member: %s Regular',mostHurtName)
-        return mostHurtID, heallist.regular
+        return mostHurtID, 'regular'
     elseif mostHurtPct < tonumber(state.config.Heals.HoTAt) and tostring(state.config.Shaman.HoTTank) == "On" and timeSinceHot:timerExpired() and mostHurtName == tank.Name() then
         timeSinceHot:reset()
         write.Trace('Group Member: %s TankHoT',mostHurtName)
-        return mostHurtID, heallist.HoT
+        return mostHurtID, 'HoT'
     end
 
     if tostring(state.config.General.XTarHeal) == "On" then
@@ -172,10 +172,10 @@ function heals.getHurt()
         end
         if mostHurtPct < tonumber(state.config.Heals.HealPanicAt) then
             write.Trace('XTarget: %s Panic',mostHurtName)
-            return mostHurtID, heallist.regular
+            return mostHurtID, 'regular'
         elseif mostHurtPct < tonumber(state.config.Heals.HealRegularAt) and mostHurtDistance < 200 then
             write.Trace('XTarget: %s Regular',mostHurtName)
-            return mostHurtID, heallist.regular
+            return mostHurtID, 'regular'
         end
     end
     return nil, nil
@@ -193,7 +193,7 @@ function heals.doheals()
     if healtarid then write.Debug('Entering Heal Routine on %s',mq.TLO.Spawn(healtarid).CleanName()) end
     if healtype then write.Trace('ID: %s, Type: %s',healtarid,healtype) end
 
-    if state.rezTimer:timerExpired() and healtype ~= heallist.panic and (mq.TLO.SpawnCount('pccorpse group radius 100 zradius 10 noalert')() > 0 or mq.TLO.SpawnCount('pccorpse raid radius 100 zradius 10 noalert')() > 0 or mq.TLO.SpawnCount(string.format('pccorpse %s radius 100 zradius 10 noalert',mq.TLO.Me.Name()))() > 0) and ((tostring(state.config.Shaman.RezStick) == 'On' and mq.TLO.Cast.Ready("Staff of Forbidden Rites")()) or (tostring(state.config.Shaman.RezOOC) == 'On' and mq.TLO.Me.CombatState() ~= 'COMBAT' and mq.TLO.Me.CurrentMana()) or (tostring(state.config.Shaman.CallOfWild) == 'On' and mq.TLO.Me.AltAbilityReady("Call of the Wild")() and mq.TLO.Me.CombatState() == 'COMBAT')) then
+    if state.rezTimer:timerExpired() and healtype ~= 'panic' and (mq.TLO.SpawnCount('pccorpse group radius 100 zradius 10 noalert')() > 0 or mq.TLO.SpawnCount('pccorpse raid radius 100 zradius 10 noalert')() > 0 or mq.TLO.SpawnCount(string.format('pccorpse %s radius 100 zradius 10 noalert',mq.TLO.Me.Name()))() > 0) and ((tostring(state.config.Shaman.RezStick) == 'On' and mq.TLO.Cast.Ready("Staff of Forbidden Rites")()) or (tostring(state.config.Shaman.RezOOC) == 'On' and mq.TLO.Me.CombatState() ~= 'COMBAT' and mq.TLO.Me.CurrentMana()) or (tostring(state.config.Shaman.CallOfWild) == 'On' and mq.TLO.Me.AltAbilityReady("Call of the Wild")() and mq.TLO.Me.CombatState() == 'COMBAT')) then
         write.Debug('Entering Rez Routine')
         local corpsetable = mq.getFilteredSpawns(function(s) 
             return s.ID() == mq.TLO.Spawn(string.format('pccorpse group radius 100 zradius 10 id %s noalert',s.ID())).ID() or s.ID() == mq.TLO.Spawn(string.format('pccorpse raid radius 100 zradius 10 id %s noalert',s.ID())).ID() or s.ID() == mq.TLO.Spawn(string.format('pccorpse %s radius 100 zradius 10 id %s noalert',mq.TLO.Me.Name(),s.ID())).ID() 
@@ -245,7 +245,7 @@ function heals.doheals()
             return
         end
 
-        if healtype == heallist.panic then
+        if healtype == 'panic' then
             write.Trace('Healtype is Panic')
             if mq.TLO.Spawn(healtarid).PctHPs() < tonumber(state.config.Shaman.SoothsayersAt) and mq.TLO.Me.AltAbilityReady("Soothsayer's Intervention")() and mq.TLO.Spawn(healtarid).Type() == 'PC' then
                 queueAbility(heallist.panic.soothsayer,'alt',healtarid,'heal')
@@ -299,7 +299,7 @@ function heals.doheals()
                 end
             end
 
-        elseif healtype == heallist.regular then
+        elseif healtype == 'regular' then
             write.Trace('Healtype is Regular')
             if mq.TLO.Spawn(healtarid).PctHPs() and mq.TLO.Spawn(healtarid).PctHPs() < tonumber(state.config.Shaman.UnionAt) and mq.TLO.Me.AltAbilityReady("Union of Spirits")() and mq.TLO.Spawn(healtarid).Type() == 'PC' then
                 queueAbility(heallist.panic.union,'alt',healtarid,'heal')
@@ -330,7 +330,7 @@ function heals.doheals()
                 return
             end
 
-        elseif healtype == heallist.groupheals then
+        elseif healtype == 'group' then
             write.Trace('Healtype is Group')
             if healtarid and mq.TLO.Spawn(healtarid).PctHPs() < tonumber(state.config.Shaman.AncAidAt) and mq.TLO.Me.AltAbilityReady("Ancestral Aid")() then
                 queueAbility(heallist.panic.ancaid,'alt',state.loop.ID,'groupheal')
@@ -378,7 +378,7 @@ function heals.doheals()
                 end
             end
 
-        elseif healtype == heallist.HoT then
+        elseif healtype == 'HoT' then
             write.Trace('Healtype is HoT')
             queueAbility(heallist.HoT,'spell',tank.ID(),'HoT')
             return

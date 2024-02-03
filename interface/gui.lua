@@ -878,46 +878,71 @@ function ui.main()
 
                 ImGui.NextColumn()
 
-                for i = 1, 2 do
-                    local labelPanicClick = string.format("Panic Click %d:", i)
-                    ImGui.Text(labelPanicClick)
-                    ImGui.SameLine()
-                    local inputTextBufferPanicClick = state.config.Heals[string.format("PanicClick%d", i)]
-                    local inputTextCallbackPanicClick = function(inputText)
-                        state.config.Heals[string.format("PanicClick%d", i)] = inputText
-                    end
-                    local newTextPanicClick, changedPanicClick = ImGui.InputText(string.format("##PanicClickl%dInput", i), inputTextBufferPanicClick, ImGuiInputTextFlags.None, inputTextCallbackPanicClick)
-                    if changedPanicClick then
-                        state.config.Heals[string.format("Heal%d", i)] = newTextPanicClick
-                    end
+                ImGui.Text("Panic Click 1:")
+                ImGui.SameLine()
+                local inputTextBufferPanicClick1 = state.config.Heals.PanicClick1
+                local inputTextCallbackPanicClick1 = function(inputText)
+                    state.config.Heals.PanicClick1 = inputText
+                end
+                local newTextPanicClick1, changedPanicClick1 = ImGui.InputText("##PanicClick1Input", inputTextBufferPanicClick1, ImGuiInputTextFlags.None, inputTextCallbackPanicClick1)
+                if changedPanicClick1 then
+                    state.config.Heals.PanicClick1 = newTextPanicClick1
                 end
 
-                for i = 1, 2 do
-                    local labelGroupHeal = string.format("Group Heal %d:", i)
-                    ImGui.Text(labelGroupHeal)
-                    ImGui.SameLine()
-                    local inputTextBufferGroupHeal = state.config.Heals[string.format("GroupHeal%d", i)]
-                    local inputTextCallbackGroupHeal = function(inputText)
-                        state.config.Heals[string.format("GroupHeal%d", i)] = inputText
-                    end
-                    local newTextGroupHeal, changedGroupHeal = ImGui.InputText(string.format("##GroupHeall%dInput", i), inputTextBufferGroupHeal, ImGuiInputTextFlags.None, inputTextCallbackGroupHeal)
-                    if changedGroupHeal then
-                        state.config.Heals[string.format("Heal%d", i)] = newTextGroupHeal
-                    end
+                ImGui.Text("Panic Click 2:")
+                ImGui.SameLine()
+                local inputTextBufferPanicClick2 = state.config.Heals.PanicClick2
+                local inputTextCallbackPanicClick2 = function(inputText)
+                    state.config.Heals.PanicClick2 = inputText
+                end
+                local newTextPanicClick2, changedPanicClick2 = ImGui.InputText("##PanicClick2Input", inputTextBufferPanicClick2, ImGuiInputTextFlags.None, inputTextCallbackPanicClick2)
+                if changedPanicClick2 then
+                    state.config.Heals.PanicClick2 = newTextPanicClick2
                 end
 
-                for i = 1, 2 do
-                    local labelGroupClick = string.format("Group Click %d:", i)
-                    ImGui.Text(labelGroupClick)
-                    ImGui.SameLine()
-                    local inputTextBufferGroupClick = state.config.Heals[string.format("GroupClick%d", i)]
-                    local inputTextCallbackGroupClick = function(inputText)
-                        state.config.Heals[string.format("GroupClick%d", i)] = inputText
-                    end
-                    local newTextGroupClick, changedGroupClick = ImGui.InputText(string.format("##GroupClickl%dInput", i), inputTextBufferGroupClick, ImGuiInputTextFlags.None, inputTextCallbackGroupClick)
-                    if changedGroupClick then
-                        state.config.Heals[string.format("Heal%d", i)] = newTextGroupClick
-                    end
+                ImGui.Text("Group Click 1:")
+                ImGui.SameLine()
+                local inputTextBufferGroupClick1 = state.config.Heals.GroupClick1
+                local inputTextCallbackGroupClick1 = function(inputText)
+                    state.config.Heals.GroupClick1 = inputText
+                end
+                local newTextGroupClick1, changedGroupClick1 = ImGui.InputText("##GroupClick1Input", inputTextBufferGroupClick1, ImGuiInputTextFlags.None, inputTextCallbackGroupClick1)
+                if changedGroupClick1 then
+                    state.config.Heals.GroupClick1 = newTextGroupClick1
+                end
+
+                ImGui.Text("Group Click 2:")
+                ImGui.SameLine()
+                local inputTextBufferGroupClick2 = state.config.Heals.GroupClick2
+                local inputTextCallbackGroupClick2 = function(inputText)
+                    state.config.Heals.GroupClick2 = inputText
+                end
+                local newTextGroupClick2, changedGroupClick2 = ImGui.InputText("##GroupClick2Input", inputTextBufferGroupClick2, ImGuiInputTextFlags.None, inputTextCallbackGroupClick2)
+                if changedGroupClick2 then
+                    state.config.Heals.GroupClick2 = newTextGroupClick2
+                end
+
+
+                ImGui.Text("Group Heal 1:")
+                ImGui.SameLine()
+                local inputTextBufferGroupHeal1 = state.config.Heals.GroupHeal1
+                local inputTextCallbackGroupHeal1 = function(inputText)
+                    state.config.Heals.GroupHeal1 = inputText
+                end
+                local newTextGroupHeal1, changedGroupHeal1 = ImGui.InputText("##GroupHeal1Input", inputTextBufferGroupHeal1, ImGuiInputTextFlags.None, inputTextCallbackGroupHeal1)
+                if changedGroupHeal1 then
+                    state.config.Heals.GroupHeal1 = newTextGroupHeal1
+                end
+
+                ImGui.Text("Group Heal 2:")
+                ImGui.SameLine()
+                local inputTextBufferGroupHeal2 = state.config.Heals.GroupHeal2
+                local inputTextCallbackGroupHeal2 = function(inputText)
+                    state.config.Heals.GroupHeal2 = inputText
+                end
+                local newTextGroupHeal2, changedGroupHeal2 = ImGui.InputText("##GroupHeal2Input", inputTextBufferGroupHeal2, ImGuiInputTextFlags.None, inputTextCallbackGroupHeal2)
+                if changedGroupHeal2 then
+                    state.config.Heals.GroupHeal2 = newTextGroupHeal2
                 end
 
                 ImGui.Text("Disease Single:")
@@ -975,7 +1000,7 @@ function ui.main()
                 end
                 local newTextDisGroup, changedDisGroup = ImGui.InputText("##DisGroupInput", inputTextBufferDisGroup, ImGuiInputTextFlags.None, inputTextCallbackDisGroup)
                 if changedDisGroup then
-                    state.config.Spells.PoiGrp = newTextDisGroup
+                    state.config.Spells.DisGrp = newTextDisGroup
                 end
                 
                 -- Poison Group
