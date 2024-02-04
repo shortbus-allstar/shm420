@@ -95,6 +95,7 @@ local function main()
                         checkMemQueue()
                         buffs.checkBuffQueue()
                         chase.doMed()
+                        if state.debuffindex ~= 1 then state.debuffindex = 1 end
                         if #state.dpsqueue > 0 then 
                             state.dpsqueue = {}
                             state.canmem = true 
@@ -102,9 +103,11 @@ local function main()
                     elseif mq.TLO.Me.CombatState() == 'COMBAT' or lib.aggroCount() > 0 then
                         combat.checkMelee()
                         debuff()
-                        buffs.checkShortBuffs()
-                        heals.doheals()
-                        dps.dodps()
+                        if not state.debuffing then
+                            buffs.checkShortBuffs()
+                            heals.doheals()
+                            dps.dodps()
+                        end
                         if tostring(state.config.General.MedCombat) == 'On' and not mq.TLO.Melee.Combat() then
                             chase.doMed()
                         end

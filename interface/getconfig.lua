@@ -9,12 +9,36 @@ function M.initConfig(cfgpath)
     local cfgtable = {}
     local sectionOrder = {}
 
+    local defaultConfigPath = mq.TLO.Lua.Dir().."\\SHM420\\interface\\defconfig.ini"
+    local defaultConfigFile = assert(io.open(defaultConfigPath, "r"))
+    local defaultConfigData = defaultConfigFile:read("*all")
+    defaultConfigFile:close()
+
+    local defaultCfgtable = {}
+    local defaultSectionOrder = {}
+    local currentSection = nil
+
+    for line in defaultConfigData:gmatch("([^\r\n]*)\r?\n") do
+        local section = line:match("^%[([^%]]+)%]$")
+        if section then
+            currentSection = section
+            table.insert(defaultSectionOrder, currentSection)
+            defaultCfgtable[currentSection] = { order = {} }
+        else
+            local key, value = line:match("^([^=]+)=(.+)$")
+            if key and value and currentSection then
+                table.insert(defaultCfgtable[currentSection].order, key)
+                defaultCfgtable[currentSection][key] = value
+            end
+        end
+    end
+
     -- Attempt to read the INI file
     local cfgfile = io.open(cfgpath, "r")
     if cfgfile then
         -- If the INI file exists, parse it into a Lua table
         printf('\ay[\amSHM\ag420\ay]\am:\at INI file found at %s. Rolling up...', cfgpath)
-        local currentSection = nil
+        currentSection = nil
 
         for line in cfgfile:lines() do
             local section = line:match("^%[([^%]]+)%]$")
@@ -31,38 +55,30 @@ function M.initConfig(cfgpath)
             end
         end
         cfgfile:close()
+
+        -- Check for missing keys and add them
+        for section, keys in pairs(defaultCfgtable) do
+            if not cfgtable[section] then
+                cfgtable[section] = { order = {} }
+            end
+            for _, key in ipairs(keys.order) do
+                if not cfgtable[section][key] then
+                    table.insert(cfgtable[section].order, key)
+                    cfgtable[section][key] = defaultCfgtable[section][key]
+                end
+            end
+        end
     else
         -- If the INI file doesn't exist, create it from a default config
         print('\ay[\amSHM\ag420\ay]\am:\at INI file not found. Hitting the dispo...')
-        local defaultConfigPath = mq.TLO.Lua.Dir().."\\SHM420\\interface\\defconfig.ini"
-        local defaultConfigFile = assert(io.open(defaultConfigPath, "r"))
-        local defaultConfigData = defaultConfigFile:read("*all")
-        defaultConfigFile:close()
 
         -- Create the INI file using the default config data
         local newConfigFile = assert(io.open(cfgpath, "w"))
         newConfigFile:write(defaultConfigData)
         newConfigFile:close()
 
-        -- Parse the newly created INI file into a Lua table
-        local currentSection = nil
-
-        local cfgfile = io.open(cfgpath, "r")
-        if cfgfile then
-            for line in cfgfile:lines() do
-                local section = line:match("^%[([^%]]+)%]$")
-                if section then
-                    currentSection = section
-                    cfgtable[currentSection] = {}
-                else
-                    local key, value = line:match("^([^=]+)=(.+)$")
-                    if key and value and currentSection then
-                        cfgtable[currentSection][key] = value
-                    end
-                end
-            end
-            cfgfile:close()
-        end
+        -- Reload the newly created INI file to ensure all keys are captured
+        return M.initConfig(cfgpath)
     end
 
     local iniOrder = {}
@@ -73,6 +89,7 @@ function M.initConfig(cfgpath)
 
     return cfgtable
 end
+
 
 
 

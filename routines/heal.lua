@@ -181,6 +181,135 @@ function heals.getHurt()
     return nil, nil
 end
 
+function heals.rezWho()
+    local who = 'none'
+    if mq.TLO.SpawnCount('pccorpse group radius 100 zradius 50 noalert')() > 0 then 
+        who = 'group'
+        write.Trace('rez group')
+    elseif mq.TLO.SpawnCount('pccorpse raid radius 100 zradius 50 noalert')() > 0 then
+        who = 'raid'
+        write.Trace('rez raid')
+    elseif mq.TLO.SpawnCount('pccorpse fellowship 100 zradius 50 noalert')() > 0 and state.config.General.RezFellowship == 'On' then
+        who = 'fellow'
+        write.Trace('rez fellow')
+    elseif mq.TLO.SpawnCount('pccorpse guildname 100 zradius 50 noalert')() > 0 and state.config.General.RezGuild == 'On' then
+        who = 'guild'
+        write.Trace('rez guild')
+    elseif mq.TLO.SpawnCount(string.format('pccorpse %s radius 100 zradius 50 noalert',mq.TLO.Me.Name()))() > 0 then
+        who = 'self'
+        write.Trace('rez self')
+    end
+    return who
+end
+
+function heals.rezType()
+    local who = heals.rezWho()
+    if who == 'none' then write.Info('no corpses') return end
+    if who == 'group' then
+        local corpsetable = mq.getFilteredSpawns(function(s) 
+            return s.ID() == mq.TLO.Spawn(string.format('pccorpse group radius 100 zradius 50 id %s noalert',s.ID())).ID()
+        end)
+
+        for k, _ in ipairs(corpsetable) do
+            if corpsetable[k].CleanName() == mq.TLO.Group.MainTank.CleanName() .. '\'s Corpse' then 
+                write.Trace('tank rez')
+                return corpsetable, 'tank', k
+            end
+        end
+
+        if #corpsetable > 0 then write.Trace('regular rez') return corpsetable, 'regular' end
+    end
+
+    if who == 'raid' then
+        local corpsetable = mq.getFilteredSpawns(function(s) 
+            return s.ID() == mq.TLO.Spawn(string.format('pccorpse raid radius 100 zradius 50 id %s noalert',s.ID())).ID()
+        end)
+
+        for k, v in ipairs(corpsetable) do
+            if v.Class.ShortName() == 'WAR' or v.Class.ShortName() == 'PAL' or v.Class.ShortName() == 'SHD' then 
+                write.Trace('tank rez raid')
+                return corpsetable, 'tank', k
+            end
+        end
+
+        if #corpsetable > 0 then write.Trace('regular rez raid') return corpsetable, 'regular' end
+    end
+
+    if who == 'fellow' then
+        local corpsetable = mq.getFilteredSpawns(function(s) 
+            return s.ID() == mq.TLO.Spawn(string.format('pccorpse fellowship radius 100 zradius 50 id %s noalert',s.ID())).ID()
+        end)
+
+        if #corpsetable > 0 then write.Trace('regular rez fellow') return corpsetable, 'regular' end
+    end
+
+    if who == 'guild' then
+        local corpsetable = mq.getFilteredSpawns(function(s) 
+            return s.ID() == mq.TLO.Spawn(string.format('pccorpse fellowship radius 100 zradius 50 id %s noalert',s.ID())).ID()
+        end)
+
+        if #corpsetable > 0 then write.Trace('regular rez guild') return corpsetable, 'regular' end
+    end
+
+    if who == 'self' then
+        local corpsetable = mq.getFilteredSpawns(function(s) 
+            return s.ID() == mq.TLO.Spawn(string.format('pccorpse %s radius 100 zradius 50 id %s noalert',mq.TLO.Me.Name(),s.ID())).ID()
+        end)
+
+        if #corpsetable > 0 then write.Trace('regular self') return corpsetable, 'self' end
+    end
+end
+
+function heals.doRez(corpse)
+    local queueAbility = require('utils.queue')
+    if corpse then write.Info('Corpse: %s ID: %s',mq.TLO.Spawn(corpse.ID()).CleanName(),corpse.ID()) end
+    if not corpse then state.needrez = false write.Info('all corpses on alert list or spawn search failed') return end
+    if tostring(state.config.Shaman.RezStick) == 'On' and mq.TLO.Cast.Ready("Staff of Forbidden Rites")() then
+        write.Info('Using Staff')
+        state.needrez = true
+        state.rezTimer:reset()
+        state.clearRezTimer:reset()
+        mq.cmdf('/squelch /alert add 0 id %s',corpse.ID())
+        mq.delay(100)
+        queueAbility('Staff of Forbidden Rites','item',corpse.ID(),'rez') 
+        return
+    elseif tostring(state.config.Shaman.RezOOC) == 'On' and mq.TLO.Me.CombatState() ~= 'COMBAT' and mq.TLO.Me.CurrentMana() > 800 and state.canmem == true then
+        state.needrez = true
+        state.rezTimer:reset()
+        state.clearRezTimer:reset()
+        mq.cmdf('/squelch /alert add 0 id %s',corpse.ID())
+        mq.delay(100)
+        queueAbility(mq.TLO.Spell("Incarnate Anew").ID(),'spell',corpse.ID(),'rez') 
+        return
+    elseif tostring(state.config.Shaman.CallOfWild) == 'On' and mq.TLO.Me.AltAbilityReady("Call of the Wild")() and mq.TLO.Me.CombatState() == 'COMBAT' then
+        state.needrez = true 
+        state.rezTimer:reset()
+        state.clearRezTimer:reset()
+        mq.cmdf('/squelch /alert add 0 id %s',corpse.ID())
+        mq.delay(100)
+        queueAbility(mq.TLO.Me.AltAbility("Call of the Wild").ID(),'alt',corpse.ID(),'rez')  
+        return
+    else 
+        if mq.TLO.Alert(0)() and state.clearRezTimer:timerExpired() then mq.cmd('/squelch /alert clear 0') end
+        return
+    end
+end
+
+function heals.checkRezes()
+    local corpsetable, target, k = heals.rezType()
+    if not corpsetable then write.Debug('no corpses') return end
+
+    if target == 'tank' then
+        local corpse = corpsetable[k]
+        heals.doRez(corpse)
+    else
+        local corpse = corpsetable[1]
+        heals.doRez(corpse)
+    end
+end
+
+
+
 function heals.doheals()
     heallist = heals.getheals()
 
@@ -193,42 +322,8 @@ function heals.doheals()
     if healtarid then write.Debug('Entering Heal Routine on %s',mq.TLO.Spawn(healtarid).CleanName()) end
     if healtype then write.Trace('ID: %s, Type: %s',healtarid,healtype) end
 
-    if state.rezTimer:timerExpired() and healtype ~= 'panic' and (mq.TLO.SpawnCount('pccorpse group radius 100 zradius 10 noalert')() > 0 or mq.TLO.SpawnCount('pccorpse raid radius 100 zradius 10 noalert')() > 0 or mq.TLO.SpawnCount(string.format('pccorpse %s radius 100 zradius 10 noalert',mq.TLO.Me.Name()))() > 0) and ((tostring(state.config.Shaman.RezStick) == 'On' and mq.TLO.Cast.Ready("Staff of Forbidden Rites")()) or (tostring(state.config.Shaman.RezOOC) == 'On' and mq.TLO.Me.CombatState() ~= 'COMBAT' and mq.TLO.Me.CurrentMana()) or (tostring(state.config.Shaman.CallOfWild) == 'On' and mq.TLO.Me.AltAbilityReady("Call of the Wild")() and mq.TLO.Me.CombatState() == 'COMBAT')) then
-        write.Debug('Entering Rez Routine')
-        local corpsetable = mq.getFilteredSpawns(function(s) 
-            return s.ID() == mq.TLO.Spawn(string.format('pccorpse group radius 100 zradius 10 id %s noalert',s.ID())).ID() or s.ID() == mq.TLO.Spawn(string.format('pccorpse raid radius 100 zradius 10 id %s noalert',s.ID())).ID() or s.ID() == mq.TLO.Spawn(string.format('pccorpse %s radius 100 zradius 10 id %s noalert',mq.TLO.Me.Name(),s.ID())).ID() 
-        end)
-        local corpse = corpsetable[1]
-        if corpse then write.Info('Corpse: %s ID: %s',mq.TLO.Spawn(corpse.ID()).CleanName(),corpse.ID()) end
-        if not corpse then state.needrez = false write.Info('all corpses on alert list or spawn search failed') return end
-        if tostring(state.config.Shaman.RezStick) == 'On' and mq.TLO.Cast.Ready("Staff of Forbidden Rites")() then
-            write.Info('Using Staff')
-            state.needrez = true
-            state.rezTimer:reset()
-            state.clearRezTimer:reset()
-            mq.cmdf('/squelch /alert add 0 id %s',corpse.ID())
-            mq.delay(100)
-            queueAbility('Staff of Forbidden Rites','item',corpse.ID(),'rez') 
-            return
-        elseif tostring(state.config.Shaman.RezOOC) == 'On' and mq.TLO.Me.CombatState() ~= 'COMBAT' and mq.TLO.Me.CurrentMana() > 800 then
-            state.needrez = true
-            state.rezTimer:reset()
-            state.clearRezTimer:reset()
-            mq.cmdf('/squelch /alert add 0 id %s',corpse.ID())
-            mq.delay(100)
-            queueAbility(mq.TLO.Spell("Incarnate Anew").ID(),'spell',corpse.ID(),'rez') 
-            return
-        elseif tostring(state.config.Shaman.CallOfWild) == 'On' and mq.TLO.Me.AltAbilityReady("Call of the Wild")() and mq.TLO.Me.CombatState() == 'COMBAT' then
-            state.needrez = true 
-            state.rezTimer:reset()
-            state.clearRezTimer:reset()
-            mq.cmdf('/squelch /alert add 0 id %s',corpse.ID())
-            mq.delay(100)
-            queueAbility(mq.TLO.Me.AltAbility("Call of the Wild").ID(),'alt',corpse.ID(),'rez')  
-            return
-        else 
-            return
-        end
+    if state.rezTimer:timerExpired() and healtype ~= 'panic' and ((tostring(state.config.Shaman.RezStick) == 'On' and mq.TLO.Cast.Ready("Staff of Forbidden Rites")()) or (tostring(state.config.Shaman.RezOOC) == 'On' and mq.TLO.Me.CombatState() ~= 'COMBAT' and mq.TLO.Me.CurrentMana() > 800 and state.canmem == true) or (tostring(state.config.Shaman.CallOfWild) == 'On' and mq.TLO.Me.AltAbilityReady("Call of the Wild")() and mq.TLO.Me.CombatState() == 'COMBAT')) then
+        heals.checkRezes()
     elseif state.clearRezTimer:timerExpired() then
         state.needrez = false
         if mq.TLO.Alert(0)() then mq.cmd('/squelch /alert clear 0') end
@@ -391,5 +486,8 @@ function heals.doheals()
         end
     end
 end
+
+
+
 
 return heals

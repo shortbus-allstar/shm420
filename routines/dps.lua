@@ -127,8 +127,6 @@ function M.dodps()
     heals.doheals()
     local assisttar = mq.TLO.Me.GroupAssistTarget.ID()
     if assisttar ~= 0 then mq.cmdf('/squelch /mqt id %s',assisttar) else return end
-    mq.delay(500)
-    write.Debug('DPS Pause')
     M.whichdpsspell()
 end
 

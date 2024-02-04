@@ -50,11 +50,11 @@ local function processQueue()
     write.Trace('burns.getBurns')
     write.Warn('should i burn BB %s SB %s',burns.BBIf,burns.SBIf)
 
-    if mq.TLO.Me.CombatState() == 'COMBAT' and (burns.BBIf ~= '0' or tostring(state.config.Burn.BurnAllNameds) == 'Big') then
+    if mq.TLO.Me.CombatState() == 'COMBAT' and (burns.BBIf ~= '0' or tostring(state.config.Burn.BurnAllNameds) == 'Big') and not state.burning then
         write.Warn('Big DICKING')
         burn.doBigBurns()
         state.burning = true
-    elseif mq.TLO.Me.CombatState() == 'COMBAT' and (burns.SBIf ~= '0' or tostring(state.config.Burn.BurnAllNameds) == 'Small') then
+    elseif mq.TLO.Me.CombatState() == 'COMBAT' and (burns.SBIf ~= '0' or tostring(state.config.Burn.BurnAllNameds) == 'Small') and not state.burning then
         write.Warn('smol DICKING')
         burn.doSmallBurns()
         state.burning = true
@@ -86,7 +86,6 @@ local function processQueue()
     end
     
     write.Trace('Abil ID = %s, Abil Type = %s, Target = %s, Category = %s',abilID,abiltype,abiltarget,category)
-    mq.delay(30)
 
     local combat = require('routines.combat')
 
@@ -150,7 +149,8 @@ local function processQueue()
             write.Trace('Delaying, recast time < 1600')
             mq.delay(recastTime)
             combat.checkPet()
-            mq.delay(500)
+            mq.delay(100)
+            mq.delay(recastTime)
             combat.checkPet()
         else
             mq.cmdf('/memspell %s "%s"',state.config.Spells.MiscGem,mq.TLO.Spell(abilID).RankName())
@@ -181,7 +181,7 @@ local function processQueue()
         write.Warn('Command was never declared. Relevent debug info: abilid(%s), abiltype(%s)',abilID,abiltype)
         return
     end
-    mq.delay(250)
+
     mq.cmd(cmdMsg)
     write.Trace('Activating Ability %s',abilID)
     mq.delay(250)
@@ -235,11 +235,18 @@ local function processQueue()
 
     end
 
-    mq.delay(150)
+    if abiltype == 'spell' then mq.delay(1250) end
 
     table.remove(abilityQueue, 1)
-    if state.needheal or state.needrez then
-        checkHeal()
+    local heals = require('routines.heal')
+    if state.needheal then
+        heals.doheals()
+    end
+    local rezcheck = 0
+    if rezcheck <= (mq.gettime() - 5000) then
+        heals.checkRezes()
+        write.Error('checking rezes')
+        rezcheck = mq.gettime()
     end
     processQueue()
 end

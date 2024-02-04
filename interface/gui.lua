@@ -115,6 +115,8 @@ local function initcheckboxes()
     checkboxes.PetHold = state.config.Pet.PetHold == 'On' and true or false
     checkboxes.PetShrink = state.config.Pet.PetShrink == 'On' and true or false
     checkboxes.PsEnabled = state.config.Powersource.PsEnabled == 'On' and true or false
+    checkboxes.RezFellowship = state.config.General.RezFellowship == 'On' and true or false
+    checkboxes.RezGuild = state.config.General.RezGuild == 'On' and true or false
 end
 
 local function checkboxesCombat() 
@@ -2047,6 +2049,30 @@ function ui.main()
                 if tostring(state.config.Spells.Radiant) == 'On' then
                     print('\ay[\amSHM\ag420\ay]\am:\at Radiant: Off')
                     state.config.Spells.Radiant = 'Off'
+                end
+            end
+
+            if ImGui.Checkbox('Rez Fellowship', checkboxes.RezFellowship) then
+                if tostring(state.config.General.RezFellowship) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Rez Fellowship: On')
+                    state.config.General.RezFellowship = 'On'
+                end
+            else
+                if tostring(state.config.General.RezFellowship) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Rez Fellowship: Off')
+                    state.config.General.RezFellowship = 'Off'
+                end
+            end
+
+            if ImGui.Checkbox('Rez Guild', checkboxes.RezGuild) then
+                if tostring(state.config.General.RezGuild) ~= 'On' then 
+                    print('\ay[\amSHM\ag420\ay]\am:\at Rez Guild: On')
+                    state.config.General.RezGuild = 'On'
+                end
+            else
+                if tostring(state.config.General.RezGuild) == 'On' then
+                    print('\ay[\amSHM\ag420\ay]\am:\at Rez Guild: Off')
+                    state.config.General.RezGuild = 'Off'
                 end
             end
             

@@ -39,6 +39,7 @@ end
 local state = {
     buffqueue = {},
     burnqueue = {},
+    debuffindex = 1,
     burning = false,
     canmem = true,
     config = conf.initConfig(conf.path),
@@ -61,7 +62,7 @@ local state = {
     clearRezTimer = timer:new(15000),
     timesinceBuffed = {},
     recastTimer = nil,
-    version = 'v1.0.6-beta',
+    version = 'v1.0.7-beta',
     githubver = getGitHubVersion()
 }
 
