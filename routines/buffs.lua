@@ -58,7 +58,7 @@ function M.checkShortBuffs()
     elseif tostring(tank) ~= 'NULL' and mq.TLO.DanNet(tank.Name()).O(sloth)() and mq.TLO.DanNet(tank.Name()).O(sloth)() == 'NULL' and tostring(state.config.Shaman.SlothTank) == 'On' and tank.ID() ~= 0 and tank.Type() ~= 'Corpse' and tank.Distance3D() < 100 then
         queueAbility(mq.TLO.Spell(mq.TLO.Spell(state.config.Buffs.Sloth).RankName()).ID(),'spell',tank.ID(),'buff')
         return
-    elseif tostring(tank) ~= 'NULL' and tostring(state.config.Shaman.WildGrowthTank) == 'On' and mq.TLO.Cast.Ready(mq.TLO.Spell(tostring(state.config.Buffs.Growth)).RankName())() and tank.ID() ~= 0 and tank.Distance3D() < 100 and tank.Type() ~= 'Corpse' and mq.TLO.Me.CombatState() == 'COMBAT' then
+    elseif tostring(tank) ~= 'NULL' and tostring(state.config.Shaman.WildGrowthTank) == 'On' and mq.TLO.Me.GemTimer(mq.TLO.Spell(state.config.Buffs.Growth).RankName())() == 0 and tank.ID() ~= 0 and tank.Distance3D() < 100 and tank.Type() ~= 'Corpse' and not lib.passiveZone(mq.TLO.Zone.ID()) then
         queueAbility(mq.TLO.Spell(mq.TLO.Spell(state.config.Buffs.Growth).RankName()).ID(),'spell',tank.ID(),'buff')
         return
     elseif tostring(tank) ~= 'NULL' and not mq.TLO.DanNet(tank.Name()).O(sloth)() and tostring(state.config.Shaman.SlothTank) == 'On' and (mq.gettime() - starttime) > 60000 and tank.ID() ~= 0  and tank.Type() ~= 'Corpse' and tank.Distance3D() < 100 then 

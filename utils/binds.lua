@@ -7,6 +7,10 @@ local heals = require('routines.heal')
 
 local M = {}
 
+function M.parse(arg1)
+    print(mq.parse(arg1))
+end
+
 function M.shmbind(arg1,arg2)
     if arg1 == 'camp' then 
         if not arg2 then

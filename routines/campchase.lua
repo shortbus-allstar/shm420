@@ -50,7 +50,7 @@ function M.chaseorcamp()
         local MA = mq.TLO.Group.MainAssist.ID()
         local needchase = mq.TLO.SpawnCount(string.format(("id %s radius %s"), MA, tonumber(state.config.General.ChaseDistance)))()
         if needchase < 1 and MA then
-            mq.cmdf('/squelch /nav id %s',MA)
+            mq.cmdf('/squelch /nav id %s dist=%s',MA,state.config.General.ChaseDistance)
         end
     elseif tostring(state.config.General.ReturnToCamp) == 'On' and M.needToNav() and mq.TLO.Me.CombatState() ~= 'COMBAT' then
         if not state.campxloc then state.campxloc, state.campyloc, state.campzloc = M.setcamp() end

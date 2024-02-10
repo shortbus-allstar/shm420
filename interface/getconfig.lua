@@ -1,9 +1,49 @@
 local mq = require('mq')
+local write = require('utils.Write')
 local cfgpath = mq.configDir .. "\\SHM420_" .. mq.TLO.Me.CleanName() .. ".ini"
+
 
 local M = {path = cfgpath}
 
+M.defaults = {
+    newcond = {
+        name = '',
+        type = '',
+        tar = nil,
+        cond = ''
+    },
+    
+    healpot = {
+        name = 'Distillate of Celestial Healing XV',
+        type = 'item',
+        tar = nil,
+        cond = '${If[${Me.PctHPs}<=45,1,0]}'
+    },
+
+    colife = {
+        name = 'Barbarian Hunting Spear',
+        type = 'item',
+        tar = 'MA Target',
+        cond = '${If[${SpawnCount[npc radius 50 zradius 10]>=5,1,0]}'
+    }
+
+
+}
+
+
 M.iniorder = {'General', 'Buffs', 'KeywordCustom', 'Heals', 'Combat', 'Shaman', 'Pet', 'Spells', 'Powersource', 'Burn'}
+
+function M.getConds()
+    local configData, err = loadfile(mq.luaDir .. "\\shm420\\utils\\conditions.lua")
+    if err then 
+        write.Info('Conditions lua not found, generating defaults')
+        mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", M.defaults)
+    elseif configData then
+        write.Info('Conditions found at %s',mq.luaDir .. "\\shm420\\utils\\conditions.lua")
+        M.defaults = configData()
+    end
+    return M.defaults
+end
 
 function M.initConfig(cfgpath)
     local cfgtable = {}

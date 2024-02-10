@@ -211,7 +211,7 @@ function heals.rezType()
         end)
 
         for k, _ in ipairs(corpsetable) do
-            if corpsetable[k].CleanName() == mq.TLO.Group.MainTank.CleanName() .. '\'s Corpse' then 
+            if corpsetable and corpsetable[k].CleanName() == mq.TLO.Group.MainTank.CleanName() .. '\'s Corpse' then 
                 write.Trace('tank rez')
                 return corpsetable, 'tank', k
             end

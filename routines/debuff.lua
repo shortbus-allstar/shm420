@@ -106,7 +106,7 @@ local function doDebuffs()
             return
         end
     elseif not hascripple then
-        if not hascripple or (hascripple and mq.TLO.Target.Crippled.ID() ~= mq.TLO.Spell(mq.TLO.Spell(debuffs.feralize).RankName()).ID()) and (tostring(state.config.Shaman.Feralize) == 'On' or (tostring(state.config.Shaman.Feralize) == 'Named' and tar.Named())) and (tar.Body.ID() == 1 or tar.Body.Name() == 'Giant' or tar.Body.Name() == 'Animal') then
+        if (not hascripple or (hascripple and mq.TLO.Target.Crippled.ID() ~= mq.TLO.Spell(mq.TLO.Spell(debuffs.feralize).RankName()).ID())) and ((tostring(state.config.Shaman.Feralize) == 'On' or (tostring(state.config.Shaman.Feralize) == 'Named' and tar.Named()))) and (tar.Body.ID() == 1 or tar.Body.Name() == 'Giant' or tar.Body.Name() == 'Animal') then
             queueAbility(debuffs.feralize,"spell",tar.ID(),'debuff')
             return
 

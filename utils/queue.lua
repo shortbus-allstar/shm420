@@ -44,34 +44,15 @@ local function processQueue()
 
     if category ~= 'heal' then checkHeal() end
 
-    local burn = require('routines.burn')
-    write.Trace('require burn routine')
-    local burns = burn.getBurns()
-    write.Trace('burns.getBurns')
-    write.Warn('should i burn BB %s SB %s',burns.BBIf,burns.SBIf)
-
-    if mq.TLO.Me.CombatState() == 'COMBAT' and (burns.BBIf ~= '0' or tostring(state.config.Burn.BurnAllNameds) == 'Big') and not state.burning then
-        write.Warn('Big DICKING')
-        burn.doBigBurns()
-        state.burning = true
-    elseif mq.TLO.Me.CombatState() == 'COMBAT' and (burns.SBIf ~= '0' or tostring(state.config.Burn.BurnAllNameds) == 'Small') and not state.burning then
-        write.Warn('smol DICKING')
-        burn.doSmallBurns()
-        state.burning = true
-    end
-
-    if #state.burnqueue == 0 and ((not burns.BBIf and not burns.SBIf) or mq.TLO.Me.CombatState() ~= 'COMBAT') then state.burning = false end
-
-
-    if category ~= 'heal' and category ~= 'rez' and mq.TLO.Me.CombatState() == 'COMBAT' and state.burning and #state.burnqueue > 0 then
-        write.Warn('Changing ability to %s',state.burnqueue[1].name)
-        abiltype = state.burnqueue[1].type
-        if abiltype == 'alt' then abilID = mq.TLO.Me.AltAbility(state.burnqueue[1].name).ID() end
-        if abiltype == 'spell' then abilID = mq.TLO.Spell(state.burnqueue[1].name).ID() end
-        if abiltype == 'item' then abilID = tostring(state.burnqueue[1].name) end
-        abiltarget = mq.TLO.Me.GroupAssistTarget.ID()
-        category = 'DD'
-        table.remove(state.burnqueue,1)
+    if category ~= 'heal' and category ~= 'rez'and #state.condqueue > 0 then
+        write.Warn('Changing ability to %s',state.condqueue[1].name)
+        abiltype = state.condqueue[1].type
+        abiltarget = state.condqueue[1].target
+        if abiltype == 'alt' then abilID = mq.TLO.Me.AltAbility(state.condqueue[1].name).ID() end
+        if abiltype == 'spell' then abilID = mq.TLO.Spell(state.condqueue[1].name).ID() end
+        if abiltype == 'item' then abilID = tostring(state.condqueue[1].name) end
+        category = 'cond'
+        table.remove(state.condqueue,1)
     end
 
     if state.canmem == false and state.memqueue and state.memqueue.abilID == abilityData.abilID then
@@ -178,18 +159,16 @@ local function processQueue()
     end
     write.Trace('Cmd: %s',cmdMsg)
     if not cmdMsg then
-        write.Warn('Command was never declared. Relevent debug info: abilid(%s), abiltype(%s)',abilID,abiltype)
+        write.Error('Command was never declared. Relevent debug info: abilid(%s), abiltype(%s)',abilID,abiltype)
         return
     end
 
     mq.cmd(cmdMsg)
+    print(printMsg)
     write.Trace('Activating Ability %s',abilID)
-    mq.delay(250)
     combat.checkPet()
     mq.doevents()
-    write.Trace('Interrupted?: %s',state.interrupted)
-    print(printMsg)
-    mq.delay(750)
+
 
     if state.dead == true then 
         abilityQueue = {}
@@ -197,12 +176,42 @@ local function processQueue()
         return
     end
 
-    local stopTime = timer:new(mq.TLO.Cast.Timing() + 250)
-    while not stopTime:timerExpired() do
+    local stopTime = 0
+    local starttime = mq.gettime()
+
+    if abiltype == 'spell' then stopTime = mq.TLO.Spell(abilID).MyCastTime() end
+    if abiltype == 'item' then stopTime = mq.TLO.FindItem(abilID).CastTime() end
+    if abiltype == 'alt' then 
+        mq.delay(500) 
+        write.Trace('\ar%s',mq.TLO.Cast.Timing() )
+        stopTime = mq.TLO.Cast.Timing() 
+    end
+
+    if stopTime == 0 then
+        table.remove(abilityQueue, 1)
+        local heals = require('routines.heal')
+        if state.needheal then
+            heals.doheals()
+        end
+        local rezcheck = 0
+        if rezcheck <= (mq.gettime() - 5000) then
+            heals.checkRezes()
+            write.Info('checking rezes')
+            rezcheck = mq.gettime()
+        end
+        processQueue() 
+        return
+    end
+    write.Trace(mq.gettime())
+    write.Trace(starttime)
+    write.Trace(stopTime)
+
+
+    while (mq.gettime() - starttime) < stopTime + 100 do
         local heals = require('routines.heal')
         local _, healtype = heals.getHurt()
-        write.Trace('Cast Timing Left: %s',stopTime:timeRemaining())
-        if healtype == 'panic' and category ~= 'heal' and stopTime:timeRemaining() > 200 and tostring(state.config.Heals.InterruptToHeal) == 'On' and not (mq.TLO.Me.PctMana() < 10 and category =='canni') then
+        write.Trace('Cast Timing Left: %s',stopTime)
+        if healtype == 'panic' and category ~= 'heal' and (mq.gettime() - starttime) > 200 and tostring(state.config.Heals.InterruptToHeal) == 'On' and not (mq.TLO.Me.PctMana() < 10 and category =='canni') then
             mq.cmd('/stopcast')
             write.Info('Stopping cast, need to heal...')
             return
@@ -231,11 +240,12 @@ local function processQueue()
         write.Trace('Interrupted?: %s',state.interrupted)
         if state.interrupted == true then table.remove(abilityQueue, 1) return end
         state.updateLoopState()
-        mq.delay(100)
-
+        mq.delay(50)
     end
 
-    if abiltype == 'spell' then mq.delay(1250) end
+    if abiltype == 'spell' then mq.delay(1250) 
+    else mq.delay(200)
+    end
 
     table.remove(abilityQueue, 1)
     local heals = require('routines.heal')
@@ -245,7 +255,7 @@ local function processQueue()
     local rezcheck = 0
     if rezcheck <= (mq.gettime() - 5000) then
         heals.checkRezes()
-        write.Error('checking rezes')
+        write.Info('checking rezes')
         rezcheck = mq.gettime()
     end
     processQueue()

@@ -7,14 +7,25 @@ function M.inControl()
     return not (mq.TLO.Me.Dead() or mq.TLO.Me.Charmed() or mq.TLO.Me.Stunned() or mq.TLO.Me.Silenced() or mq.TLO.Me.Mezzed() or mq.TLO.Me.Invulnerable() or mq.TLO.Me.Hovering())
 end
 
-function M.amiready()
-    return not mq.TLO.Me.Invis() and mq.TLO.Melee.Immobilize() and not mq.TLO.Me.Moving() and M.inControl()
-end
-
 function M.isBlockingWindowOpen()
     -- check blocking windows -- BigBankWnd, MerchantWnd, GiveWnd, TradeWnd
-    return mq.TLO.Window('BigBankWnd').Open() or mq.TLO.Window('MerchantWnd').Open() or mq.TLO.Window('GiveWnd').Open() or mq.TLO.Window('TradeWnd').Open() or mq.TLO.Window('LootWnd').Open()
+    return mq.TLO.Window('BigBankWnd').Open() or mq.TLO.Window('MerchantWnd').Open() or mq.TLO.Window('GiveWnd').Open() or mq.TLO.Window('TradeWnd').Open() or mq.TLO.Window('LootWnd').Open() or mq.TLO.Window('SpellBookWnd').Open()
 end
+
+function M.amiready()
+    return not mq.TLO.Me.Invis() and mq.TLO.Melee.Immobilize() and not mq.TLO.Me.Moving() and M.inControl() and not M.isBlockingWindowOpen()
+end
+
+local pzoneIds = {151, 202, 203, 219, 344, 345, 463, 737, 33480, 33113}
+function M.passiveZone(id)
+    for _, zoneId in ipairs(pzoneIds) do
+        if id == zoneId then
+            return true
+        end
+    end
+    return false
+end
+
 
 function M.debugxtars()
     local xtarheals = tonumber(state.config.General.XTarHealList)

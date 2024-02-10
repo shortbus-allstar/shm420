@@ -38,7 +38,7 @@ end
 
 local state = {
     buffqueue = {},
-    burnqueue = {},
+    condqueue = {},
     debuffindex = 1,
     burning = false,
     canmem = true,
@@ -62,10 +62,11 @@ local state = {
     clearRezTimer = timer:new(15000),
     timesinceBuffed = {},
     recastTimer = nil,
-    version = 'v1.0.7-beta',
+    version = 'v2.0.0-beta',
     githubver = getGitHubVersion()
 }
 
+state.config.conds = conf.getConds()
 
 function state.updateLoopState()
     if mq.TLO.MacroQuest.GameState() ~= 'INGAME' then
@@ -75,6 +76,8 @@ function state.updateLoopState()
     write.Trace('Updating Loop State')
     mq.doevents()
     write.Trace('Events Loop State')
+    local conds = require('routines.condhandler')
+    conds.doConds()
     write.loglevel = state.loglevel
     state.actionTaken = false
     state.loop = {

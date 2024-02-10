@@ -31,6 +31,7 @@ state.updateLoopState()
 mq.bind('/test',binds.testbind)
 mq.bind('/state',binds.var)
 mq.bind('/reload',binds.configreload)
+mq.bind('/parse',binds.parse)
 
 write.prefix = '\ar\a-g'
 
@@ -89,6 +90,7 @@ local function main()
                     heals.doheals()
                     cures.doCures()
                     combat.handlePowerSource()
+                    if #state.condqueue > 0 then queueAbility(state.condqueue[1].name,state.condqueue[1].type,state.condqueue[1].tar,'cond') end
                     buffs.checkCanni()
                     if mq.TLO.Me.CombatState() ~= 'COMBAT' and lib.aggroCount() == 0 then
                         handlePet()

@@ -182,6 +182,49 @@ local function renderPopup()
 end
 
 
+local function findIndex(table, value)
+    for i, v in ipairs(table) do
+        if v == value then
+            return i
+        end
+    end
+    return nil
+end
+
+local function drawInputRow(inputTable, key)
+    ImGui.Text("Name:")
+    ImGui.SameLine()
+    ImGui.SetNextItemWidth(360)
+    inputTable.name = ImGui.InputText("##Name" .. key, inputTable.name or "", 128)
+
+    ImGui.SameLine()
+
+    ImGui.Text("Type:")
+    ImGui.SameLine()
+    local types = {"item", "spell", "alt", "cmd"}
+    local selectedTypeIndex = findIndex(types, inputTable.type) or 1
+    ImGui.SetNextItemWidth(75)
+    selectedTypeIndex = ImGui.Combo("##Type" .. key, selectedTypeIndex, types)
+    inputTable.type = types[selectedTypeIndex]
+
+
+    ImGui.Text("Condition:")
+    ImGui.SameLine()
+    ImGui.SetNextItemWidth(335)
+    inputTable.cond = ImGui.InputText("##Condition" .. key, inputTable.cond or "", 128)
+
+    ImGui.SameLine()
+
+    ImGui.Text("Target:")
+    ImGui.SameLine()
+    local targets = {"Tank", "Self", "MA Target", "None"}
+    local selectedTargetIndex = inputTable.tar and findIndex(targets, inputTable.tar) or 4
+    ImGui.SetNextItemWidth(95)
+    selectedTargetIndex = ImGui.Combo("##Target" .. key, selectedTargetIndex, targets)
+    inputTable.tar = selectedTargetIndex == 4 and nil or targets[selectedTargetIndex]
+
+    ImGui.NewLine()
+end
 
 
 
@@ -231,6 +274,11 @@ function ui.main()
 
 
             ImGui.NewLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 90) 
+
+            if ImGui.Button('Patch Notes',85,25) then
+                os.execute('start https://github.com/shortbus-allstar/shm420/blob/main/README.md')
+            end
 
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 30) 
 
@@ -403,9 +451,9 @@ function ui.main()
 
 
             local function hpcolor()
-                if mq.TLO.Me.PctHPs() > 75 then return ImVec4(0,1,0,1) end
-                if mq.TLO.Me.PctHPs() <= 75 and mq.TLO.Me.PctHPs() > 35 then return ImVec4(1,1,0,1) end
-                if mq.TLO.Me.PctHPs() <= 35 then return ImVec4(1,0,0,1) end
+                if mq.TLO.Me.PctHPs() and tonumber(mq.TLO.Me.PctHPs()) > 75 then return ImVec4(0,1,0,1) end
+                if mq.TLO.Me.PctHPs() and tonumber(mq.TLO.Me.PctHPs()) <= 75 and mq.TLO.Me.PctHPs() > 35 then return ImVec4(1,1,0,1) end
+                if mq.TLO.Me.PctHPs() and tonumber(mq.TLO.Me.PctHPs()) <= 35 then return ImVec4(1,0,0,1) end
             end
 
             local function manacolor()
@@ -486,14 +534,14 @@ function ui.main()
             end
             ImGui.PopStyleColor()
 
-            ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'# in Burn Queue:')
+            ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'# in Cond Queue:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(#state.burnqueue))
+            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(#state.condqueue))
             ImGui.SameLine()
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2) 
             ImGui.PushStyleColor(ImGuiCol.Text,ImVec4(1,0,0,1))
             if ImGui.Button('Clear',ImVec2(40,20)) then
-                state.burnqueue = {}
+                state.condqueue = {}
             end
             ImGui.PopStyleColor()
 
@@ -1346,6 +1394,7 @@ function ui.main()
             local buttonLabel1 = "Save\nConfig"
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
             end
             
             ImGui.SameLine()
@@ -1353,6 +1402,7 @@ function ui.main()
             local buttonLabel2 = "Load\nConfig"
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
+                state.config.conds = conf.getConds()
             end
 
             ImGui.SameLine()
@@ -1672,6 +1722,7 @@ function ui.main()
             local buttonLabel1 = "Save\nConfig"
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
             end
             
             ImGui.SameLine()
@@ -1679,6 +1730,7 @@ function ui.main()
             local buttonLabel2 = "Load\nConfig"
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
+                state.config.conds = conf.getConds()
             end
 
             ImGui.SameLine()
@@ -1935,6 +1987,7 @@ function ui.main()
             local buttonLabel1 = "Save\nConfig"
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
             end
             
             ImGui.SameLine()
@@ -1942,6 +1995,7 @@ function ui.main()
             local buttonLabel2 = "Load\nConfig"
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
+                state.config.conds = conf.getConds()
             end
 
             ImGui.SameLine()
@@ -2324,6 +2378,7 @@ function ui.main()
             local buttonLabel1 = "Save\nConfig"
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
             end
             
             ImGui.SameLine()
@@ -2331,6 +2386,7 @@ function ui.main()
             local buttonLabel2 = "Load\nConfig"
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
+                state.config.conds = conf.getConds()
             end
 
             ImGui.SameLine()
@@ -2658,6 +2714,7 @@ function ui.main()
             local buttonLabel1 = "Save\nConfig"
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
             end
             
             ImGui.SameLine()
@@ -2665,6 +2722,7 @@ function ui.main()
             local buttonLabel2 = "Load\nConfig"
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
+                state.config.conds = conf.getConds()
             end
 
             ImGui.SameLine()
@@ -2681,88 +2739,18 @@ function ui.main()
             ImGui.DrawTextureAnimation(anim,150,150)
         end
 
-        if ImGui.BeginTabItem(icons.FA_TROPHY .. '  Burn') then
+        if ImGui.BeginTabItem(icons.FA_LIST .. '  Conditions') then
             local totalWidth, _ = ImGui.GetContentRegionAvail()
             local columnWidth = totalWidth / 2
 
             -- Your Misc tab content goes here
-
-            ImGui.Text("Big Burn If:")
-            ImGui.SameLine()
-            local bigBurnIfBuffer = state.config.Burn.BigBurnIf or ""
-            local newBigBurnIf, changedBigBurnIf = ImGui.InputText("##BigBurnIfInput", bigBurnIfBuffer, 256)
-            if changedBigBurnIf then
-                state.config.Burn.BigBurnIf = newBigBurnIf
-            end
-        
-        
-            -- Dropdown options for BBurns and SBurns
-            local burnOptions = { "alt", "spell", "item" }
-        
-            -- New entries for BBurns
-            for i = 1, 8 do
-                local burnKey = string.format("BBurn%d", i)
-                ImGui.Text(burnKey .. ":")
-                ImGui.SameLine()
-        
-                local burnBuffer = state.config.Burn[burnKey] or ""
-                local newBurn, changedBurn = ImGui.InputText(string.format("##%sInput", burnKey), burnBuffer:match("^(.-)|"), 256)
-        
-                ImGui.SameLine()
-        
-                local currentIndex = 1
-                for i, option in ipairs(burnOptions) do
-                    if option == burnBuffer:match("|(.+)$") then
-                        currentIndex = i
-                        break
-                    end
-                end
-        
-                local newComboIndex
-                newComboIndex, _ = ImGui.Combo(string.format("##%sCombo", burnKey), currentIndex, burnOptions, #burnOptions)
-        
-                if changedBurn or (newComboIndex ~= currentIndex) then
-                    local newBurnValue = string.format("%s|%s", newBurn, burnOptions[newComboIndex])
-                    state.config.Burn[burnKey] = newBurnValue
+            for k, _ in pairs(state.config.conds) do
+                if k ~= 'newcond' then
+                    drawInputRow(state.config.conds[k],k)
                 end
             end
 
-            ImGui.NewLine()
-            ImGui.Text("Small Burn If:")
-            ImGui.SameLine()
-            local smallBurnIfBuffer = state.config.Burn.SmallBurnIf or ""
-            local newSmallBurnIf, changedSmallBurnIf = ImGui.InputText("##SmallBurnIfInput", smallBurnIfBuffer, 256)
-            if changedSmallBurnIf then
-                state.config.Burn.SmallBurnIf = newSmallBurnIf
-            end
-        
-            -- New entries for SBurns
-            for i = 1, 8 do
-                local burnKey = string.format("SBurn%d", i)
-                ImGui.Text(burnKey .. ":")
-                ImGui.SameLine()
-        
-                local burnBuffer = state.config.Burn[burnKey] or ""
-                local newBurn, changedBurn = ImGui.InputText(string.format("##%sInput", burnKey), burnBuffer:match("^(.-)|"), 256)
-        
-                ImGui.SameLine()
-        
-                local currentIndex = 1
-                for i, option in ipairs(burnOptions) do
-                    if option == burnBuffer:match("|(.+)$") then
-                        currentIndex = i
-                        break
-                    end
-                end
-        
-                local newComboIndex
-                newComboIndex, _ = ImGui.Combo(string.format("##%sCombo", burnKey), currentIndex, burnOptions, #burnOptions)
-        
-                if changedBurn or (newComboIndex ~= currentIndex) then
-                    local newBurnValue = string.format("%s|%s", newBurn, burnOptions[newComboIndex])
-                    state.config.Burn[burnKey] = newBurnValue
-                end
-            end
+
         
             ImGui.Columns(1)
         
@@ -2776,6 +2764,7 @@ function ui.main()
             local buttonLabel1 = "Save\nConfig"
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
             end
             
             ImGui.SameLine()
@@ -2783,6 +2772,7 @@ function ui.main()
             local buttonLabel2 = "Load\nConfig"
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
+                state.config.conds = conf.getConds()
             end
 
             ImGui.SameLine()
@@ -2793,50 +2783,72 @@ function ui.main()
 
             ImGui.SameLine()
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 25) 
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 15) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 55) 
 
-            if ImGui.Checkbox('Burn All Named', checkboxes.BurnAllNamed) then
-                if tostring(state.config.Burn.BurnAllNamed) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Burn Named: On')
-                    state.config.Burn.BurnAllNamed = 'On'
-                end
-            else
-                if tostring(state.config.Burn.BurnAllNamed) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Burn Named: Off')
-                    state.config.Burn.BurnAllNamed = 'Off'
-                end
+            local key = 1
+
+            ImGui.Text("Name:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(360)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 54) 
+            state.config.conds.newcond.name = ImGui.InputText("##Name" .. key, state.config.conds.newcond.name or "", 128)
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 417) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 32) 
+        
+        
+        
+            ImGui.Text("Condition:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(335)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 27) 
+            state.config.conds.newcond.cond = ImGui.InputText("##Condition" .. key, state.config.conds.newcond.cond or "", 128)
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 414) 
+
+        
+            ImGui.Text("Type:")
+            ImGui.SameLine()
+            local types = {"item", "spell", "alt", "cmd"}
+
+            local selectedTypeIndex = findIndex(types, state.config.conds.newcond.type) or 1
+            ImGui.SetNextItemWidth(75)
+            selectedTypeIndex = ImGui.Combo("##Type" .. key, selectedTypeIndex, types)
+            state.config.conds.newcond.type = types[selectedTypeIndex]
+
+            ImGui.SameLine()
+ 
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 123) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 25) 
+            
+        
+            ImGui.Text("Target:")
+            ImGui.SameLine()
+            local targets = {"Tank", "Self", "MA Target", "None"}
+            local selectedTargetIndex = state.config.conds.newcond.tar and findIndex(targets, state.config.conds.newcond.tar) or 4
+            ImGui.SetNextItemWidth(95)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 25) 
+            selectedTargetIndex = ImGui.Combo("##Target" .. key, selectedTargetIndex, targets)
+            state.config.conds.newcond.tar = selectedTargetIndex == 4 and nil or targets[selectedTargetIndex]
+
+            ImGui.SameLine()
+
+            if ImGui.Button('Add\nCondition', 75, BUTTON_SIZE) then
+                local newTableName = state.config.conds.newcond.name
+                state.config.conds[newTableName] = {}
+                state.config.conds[newTableName].name = newTableName
+                state.config.conds[newTableName].type = state.config.conds.newcond.type
+                state.config.conds[newTableName].tar = state.config.conds.newcond.tar
+                state.config.conds[newTableName].cond = state.config.conds.newcond.cond
             end
 
             ImGui.SameLine()
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 129) 
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 12) 
 
-            if ImGui.Checkbox('Small Burn w/ Big Burn', checkboxes.SmallWithBig) then
-                if tostring(state.config.Burn.SmallWithBig) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Both Burns: On')
-                    state.config.Burn.SmallWithBig = 'On'
-                end
-            else
-                if tostring(state.config.Burn.SmallWithBig) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Single Burn mode: On')
-                    state.config.Burn.SmallWithBig = 'Off'
-                end
-            end
-
-            ImGui.SameLine()
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 178) 
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 38) 
-
-            if ImGui.Checkbox('Use Tribute', checkboxes.UseTribute) then
-                if tostring(state.config.Burn.UseTribute) ~= 'On' then 
-                    print('\ay[\amSHM\ag420\ay]\am:\at Both Burns: On')
-                    state.config.Burn.UseTribute = 'On'
-                end
-            else
-                if tostring(state.config.Burn.UseTribute) == 'On' then
-                    print('\ay[\amSHM\ag420\ay]\am:\at Single Burn mode: On')
-                    state.config.Burn.UseTribute = 'Off'
-                end
+            if ImGui.Button('Delete\nCondition', 75, BUTTON_SIZE) then
+                local newTableName = state.config.conds.newcond.name
+                state.config.conds[newTableName] = nil
             end
 
             ImGui.EndTabItem()
