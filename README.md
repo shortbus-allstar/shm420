@@ -28,22 +28,24 @@
    
    ```Trigger: #1# tells you, '#*#'```
 
+   More examples included with update
+
    To delete an event, type the matching command in the new event input text box and click delete event.
    
    When adding an event, the cmd delay is the delay in ms between consecutive executions of that specific command if it is triggered rapidly.
    The loop delay (ms) is how long the main loop should pause itself to let the command run its course.
 
-3. After zoning, return to camp is now turned off.
+4. After zoning, return to camp is now turned off.
 
-4. Fixed an issue where the bot would chase the main assist's corpse
+5. Fixed an issue where the bot would chase the main assist's corpse
    
-5. Fixed an issue with target changing for a short time after being paused
+6. Fixed an issue with target changing for a short time after being paused
    
-6. Will now cure detrimental effects with radiant cure (now ignores rez sicknesses too)
+7. Will now cure detrimental effects with radiant cure (now ignores rez sicknesses too)
    
-7. Fixed rez routine (again) (hopefully?)
+8. Fixed rez routine (again) (hopefully?)
 
-8. Will now skip condition-activated abilities when slowing a named mob (the same way it would handle a heal or rez ability)
+9. Will now skip condition-activated abilities when slowing a named mob (the same way it would handle a heal or rez ability)
 
 
 **Patch Notes - v2.0.0-beta**
