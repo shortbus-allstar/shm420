@@ -14,11 +14,11 @@
   
    ```Condition: ${If[!${Me.Buff[Pack of Wurt].ID} && !${Select[${Zone.ID},151,202,203,219,344,345,463,737,33480,33113]},1,0]}```
 
-  ``` Name: /echo Pack of Wurt not needed```
+     ``` Name: /echo Pack of Wurt not needed```
   
-   ```Condition: ${If[${Pack of Wurt}==0,1,0]}```
+      ```Condition: ${If[${Pack of Wurt}==0,1,0]}```
 
-   For extra clarity, whatever is inside of the Name: [Input Text] will be what is inside of the ${}.
+      For extra clarity, whatever is inside of the Name: [Input Text] will be what is inside of the ${}.
 
 2. Events tab added. Works similarly to mq2events, currently supports up to 4 args.
 
