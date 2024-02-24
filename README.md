@@ -11,6 +11,7 @@
    Here is an example using one in a separate shm420 condition:
 
   ``` Name: /echo Pack of Wurt not needed```
+  
    ```Condition: ${If[${Pack of Wurt}==0,1,0]}```
 
    For extra clarity, whatever is inside of the Name: [Input Text] will be what is inside of the ${}.
@@ -20,6 +21,7 @@
    Example:
 
    ```Cmd: /echo #1# sent you a tell```
+   
    ```Trigger: #1# tells you, '#*#'```
 
    To delete an event, type the matching command in the new event input text box and click delete event.
@@ -27,15 +29,15 @@
    When adding an event, the cmd delay is the delay in ms between consecutive executions of that specific command if it is triggered rapidly multiple times.
    The loop delay (ms) is how long the main loop should pause itself to let the command run its course.
 
-3. Fixed an issue where the bot would chase the main assist's corpse
+4. Fixed an issue where the bot would chase the main assist's corpse
    
-4. Fixed an issue with target changing for a short time after being paused
+5. Fixed an issue with target changing for a short time after being paused
    
-5. Will now cure detrimental effects with radiant cure (now ignores rez sicknesses too)
+6. Will now cure detrimental effects with radiant cure (now ignores rez sicknesses too)
    
-6. Fixed rez routine (again) (hopefully?)
+7. Fixed rez routine (again) (hopefully?)
 
-7. Will now skip condition-activated abilities when slowing a named mob (the same way it would handle a heal or rez ability)
+8. Will now skip condition-activated abilities when slowing a named mob (the same way it would handle a heal or rez ability)
 
 
 **Patch Notes - v2.0.0-beta**
