@@ -1,3 +1,7 @@
+**Patch Notes - v2.1.1-beta**
+
+1. Fixed an issue with trying to cure Rez Sicknesses off self
+
 **Patch Notes - v2.1.0-beta**
 
 1. Conditions are now global variables. For example, if you have a condition named "Spire", using
