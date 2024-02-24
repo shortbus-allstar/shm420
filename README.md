@@ -24,9 +24,10 @@
 
    Example:
 
-   ```Cmd: /echo #1# sent you a tell```
-   
-   ```Trigger: #1# tells you, '#*#'```
+   ```Cmd: /multiline ; /tar #1# ; /timed 10 /useitem Dradir's Scepter of Dreams```
+   ```Trigger: #1# is consumed by darkness.'```
+   ```Cmd Delay: 1200```
+   ```Loop Delay: 1200```
 
    More examples included with update
 
