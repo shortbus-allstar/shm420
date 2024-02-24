@@ -33,6 +33,8 @@
    When adding an event, the cmd delay is the delay in ms between consecutive executions of that specific command if it is triggered rapidly multiple times.
    The loop delay (ms) is how long the main loop should pause itself to let the command run its course.
 
+3. After zoning, return to camp is now turned off.
+
 4. Fixed an issue where the bot would chase the main assist's corpse
    
 5. Fixed an issue with target changing for a short time after being paused
