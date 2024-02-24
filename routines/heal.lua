@@ -211,12 +211,15 @@ function heals.rezType()
         end)
 
         for k, _ in ipairs(corpsetable) do
-            if corpsetable and corpsetable[k].CleanName() == mq.TLO.Group.MainTank.CleanName() .. '\'s Corpse' then 
-                write.Trace('tank rez')
-                return corpsetable, 'tank', k
+            if corpsetable and corpsetable[k] and type(corpsetable[k].CleanName) == "function" then
+                local corpseName = corpsetable[k].CleanName()
+                if corpseName == mq.TLO.Group.MainTank.CleanName() .. '\'s Corpse' then 
+                    write.Trace('tank rez')
+                    return corpsetable, 'tank', k
+                end
             end
         end
-
+        
         if #corpsetable > 0 then write.Trace('regular rez') return corpsetable, 'regular' end
     end
 

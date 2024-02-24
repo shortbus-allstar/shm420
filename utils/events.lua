@@ -6,6 +6,19 @@ local chase = require('routines.campchase')
 
 local events = {}
 
+local function replaceArgs(inputString, ...)
+    local args = {...}
+    local resultString = inputString:gsub("#(%d)#", function(num)
+        local argIndex = tonumber(num)
+        if argIndex and args[argIndex] then
+            return args[argIndex]
+        else
+            return "#" .. num .. "#"
+        end
+    end)
+    return resultString
+end
+
 function events.init()
     mq.event('interrupted', '#*#Your #1#spell is interrupted#*#', events.interruptcallback)
     mq.event('fizzle', '#*#Your #1#spell fizzles#*#', events.interruptcallback)
@@ -15,12 +28,30 @@ function events.init()
     mq.event('newgrouptank', '#1# is now group Main Tank', events.newgrouptank)
     mq.event('eventDeadSlain', 'You have been slain by#*#', events.eventDead)
     mq.event('zoned', '#*#Returning to Bind Location#*#', events.notDead)
+    mq.event('zoned2', 'You have entered#*#.', events.zoned)
     mq.event('rezzed', 'You regain some experience from resurrection.', events.notDead)
     local keywordal = string.format('#1# tells you, \'%s\'',state.config.Buffs.KeywordAll)
     local keywordcu = string.format('#1# tells you, \'%s\'',state.config.Buffs.KeywordCustom)
     mq.event('keyworda',keywordal, events.keywordall)
     mq.event('keywordc',keywordcu, events.keywordcustom)
+    for i, _ in ipairs(state.config.events) do
+        if state.config.events[i] ~= state.config.events.newevent then
+            events.addevents(state.config.events[i].trig,state.config.events[i].cmd,state.config.events[i].cmddelay,state.config.events[i].loopdelay)
+        end
+    end
+end
 
+function events.addevents(trig,cmd,cmddel,loopdel)
+    mq.event(cmd, trig, function(line,arg1,arg2,arg3,arg4)
+        local newcmd = replaceArgs(cmd,arg1,arg2,arg3,arg4)
+        if not state.eventtimers[trig] or ((mq.gettime() - tonumber(state.eventtimers[trig])) > tonumber(cmddel)) then
+            mq.cmd(newcmd)
+            state.eventtimers[trig] = mq.gettime()
+            state.paused = true
+            mq.delay(tonumber(loopdel))
+            state.paused = false
+        end  
+    end)
 end
 
 events.interruptcallback = function(line, arg1)
@@ -30,6 +61,10 @@ end
 
 function events.newgroupmem(line, arg1)
     lib.initToon(arg1)
+end
+
+function events.zoned(line, arg1)
+    mq.cmd('/shm camp off')
 end
 
 function events.newgrouptank(line,arg1)

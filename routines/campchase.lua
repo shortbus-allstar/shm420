@@ -49,7 +49,7 @@ function M.chaseorcamp()
     if tostring(state.config.General.ChaseAssist) == 'On' then
         local MA = mq.TLO.Group.MainAssist.ID()
         local needchase = mq.TLO.SpawnCount(string.format(("id %s radius %s"), MA, tonumber(state.config.General.ChaseDistance)))()
-        if needchase < 1 and MA then
+        if needchase < 1 and MA and mq.TLO.Spawn(MA).Type() ~= 'Corpse' then
             mq.cmdf('/squelch /nav id %s dist=%s',MA,state.config.General.ChaseDistance)
         end
     elseif tostring(state.config.General.ReturnToCamp) == 'On' and M.needToNav() and mq.TLO.Me.CombatState() ~= 'COMBAT' then

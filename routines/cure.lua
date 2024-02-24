@@ -37,6 +37,17 @@ function M.getCounts(toon)
     return dcount, pcount, cucount, cocount
 end
 
+function M.rezSickCount(toon)
+    local cnt = 0
+    if mq.TLO.DanNet(toon).O('Me.Buff[Resurrection Sickness]') then
+        cnt = cnt + 1
+    end
+    if mq.TLO.DanNet(toon).O('Me.Buff[Revival Sickness]') then
+        cnt = cnt + 1
+    end
+    return cnt
+end
+
 function M.checkGroupAil()
     if tostring(state.config.General.UseDNet) ~= 'On' or tostring(state.config.Shaman.Cures) ~= 'On' then return
     else
@@ -51,7 +62,7 @@ function M.checkGroupAil()
             groupcureok = false
             selfcureok = false
         end
-        for i = 1, grpSize do
+        for i = 1, grpSize - 1 do
             local grpMem = mq.TLO.Group.Member(i).Name()
             if mq.TLO.DanNet(grpMem).ObserveCount() then
                 local insert = true
@@ -59,6 +70,10 @@ function M.checkGroupAil()
                 if hasbuff == true then
                     groupcureok = false
                     insert = false
+                end
+                if tonumber(mq.TLO.DanNet(grpMem).O('Debuff.Detrimentals')()) > M.rezSickCount(grpMem) then
+                    curetype = 'det'
+                    curetarget = mq.TLO.Group.Member(grpMem).ID()
                 end
                 if insert == true then table.insert(tocure,grpMem) end
             end
@@ -82,6 +97,11 @@ function M.checkGroupAil()
             if mq.TLO.Me.CountersCorruption() > 0 then
                 curetarget = mq.TLO.Me.ID()
                 curetype = 'corr'
+                return curetarget, curetype, groupcureok 
+            end
+            if mq.TLO.Debuff.Detrimentals() ~= 0 then
+                curetarget = mq.TLO.Me.ID()
+                curetype = 'det'
                 return curetarget, curetype, groupcureok 
             end
         end
@@ -110,6 +130,7 @@ function M.checkGroupAil()
                 if curetarget ~= nil then return curetarget, curetype, groupcureok end
             end
         end
+        return curetarget, curetype, groupcureok
     end
 end
 
@@ -127,11 +148,9 @@ function M.doCures()
                     if mq.TLO.Me.AltAbilityReady("Radiant Cure")() then
                         queueAbility(cures.radiant,'alt',tar,'cure')
                     elseif cures.grpdis ~= nil then
-                        mq.cmdf('/mqt id %s',tar)
                         queueAbility(cures.grpdis,'spell',tar,'cure')
                     end
                 elseif cures.singledis ~= nil then
-                    mq.cmdf('/mqt id %s',tar)
                     queueAbility(cures.singledis,'spell',tar,'cure')
                 end
             end
@@ -166,6 +185,13 @@ function M.doCures()
                     end
                 elseif cures.singlecorr ~= nil then
                     queueAbility(cures.singlecorr,'spell',tar,'cure')
+                end
+            end
+            if curetype == 'det' then
+                if group == true then
+                    if mq.TLO.Me.AltAbilityReady("Radiant Cure")() then
+                        queueAbility(cures.radiant,'alt',tar,'cure')
+                    end
                 end
             end
             mq.delay(250)

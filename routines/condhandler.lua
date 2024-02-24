@@ -59,16 +59,31 @@ function mod.addtoCondQueue(name, type, tar)
     state.condqueue[#state.condqueue + 1] = data
 end
 
+function mod.checkcondTimer(table)
+    if table.type == 'alt' then 
+        if mq.TLO.Me.AltAbility(table.name).Spell.MyCastTime() ~= 0 then 
+            return mq.TLO.Me.AltAbility(table.name).Spell.MyCastTime() + 1000 
+        else return 10000 end
+    end
+    if table.type == 'spell' then return mq.TLO.Spell(table.name).MyCastTime() + 5000 end
+    if table.type == 'item' then return mq.TLO.FindItem(table.name).CastTime() + 5000 end
+    if table.type == 'cmd' then return 1000 end
+end
+
 function mod.doConds()
     local conditions = mod.checkConds()
     for k, _ in pairs(state.config.conds) do
         if k ~= 'newcond' then
-            if tonumber(conditions[k]) == 1 then
+            if not state.condtimers[k] then state.condtimers[k] = 0 end
+            if k == 'Pack of Wurt' then write.Trace(tonumber((mq.gettime() - state.condtimers[k]))) end
+                if k == 'Pack of Wurt' then write.Trace(tonumber(mod.checkcondTimer(state.config.conds[k]))) end
+            if tonumber(conditions[k]) == 1 and (mq.gettime() - state.condtimers[k]) >= mod.checkcondTimer(state.config.conds[k]) then
                 for k2, _ in pairs(state.condqueue) do
                     if state.condqueue[k2].name == state.config.conds[k].name then write.Debug('already queued') return end
                 end
                 write.Debug('add to q')
                 mod.addtoCondQueue(state.config.conds[k].name,state.config.conds[k].type,state.config.conds[k].tar)
+                state.condtimers[k] = mq.gettime()
             end
         end    
     end

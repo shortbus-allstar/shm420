@@ -6,7 +6,7 @@ local config = state.config
 
 function M.checkMelee()
     if tostring(state.config.Combat.Melee) == 'On' then
-        if mq.TLO.Target.ID() ~= mq.TLO.Me.GroupAssistTarget.ID() then
+        if mq.TLO.Target.ID() ~= mq.TLO.Me.GroupAssistTarget.ID() and not state.paused then
             mq.cmdf('/squelch /mqt id %s',mq.TLO.Me.GroupAssistTarget.ID())
             mq.delay(750)
         end

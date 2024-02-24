@@ -43,6 +43,8 @@ local state = {
     burning = false,
     canmem = true,
     config = conf.initConfig(conf.path),
+    eventtimers = {},
+    condtimers = {},
     debug = false,
     dead = false,
     didFD = false,
@@ -62,11 +64,20 @@ local state = {
     clearRezTimer = timer:new(15000),
     timesinceBuffed = {},
     recastTimer = nil,
-    version = 'v2.0.0-beta',
+    version = 'v2.1.0-beta',
     githubver = getGitHubVersion()
 }
 
 state.config.conds = conf.getConds()
+state.config.events = conf.getEvents()
+
+mq.cmd('/deletevar * global')
+
+for k, _ in pairs(state.config.conds) do
+    if k ~= 'newcond' then
+        mq.cmdf('/declare "%s" global %s',k,state.config.conds[k].cond)
+    end
+end
 
 function state.updateLoopState()
     if mq.TLO.MacroQuest.GameState() ~= 'INGAME' then
@@ -74,6 +85,11 @@ function state.updateLoopState()
         mq.exit()
     end
     write.Trace('Updating Loop State')
+    for k, _ in pairs(state.config.conds) do
+        if k ~= 'newcond' then
+            mq.cmdf('/varset "%s" %s',k,state.config.conds[k].cond)
+        end
+    end
     mq.doevents()
     write.Trace('Events Loop State')
     local conds = require('routines.condhandler')

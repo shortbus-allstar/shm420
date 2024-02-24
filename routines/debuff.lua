@@ -45,7 +45,7 @@ local function doDebuffs()
     local aggroCount = #debufflist
     if not tar then write.Info('no debuffs needed') return end
     if mq.TLO.Target.ID() ~= tar.ID() and tar.ID() ~= nil then
-        mq.cmdf('/squelch /mqt id %s',tar.ID())
+        if not state.paused then mq.cmdf('/squelch /mqt id %s',tar.ID()) end
         write.Info('Targeting %s',mq.TLO.Spawn(tostring(tar.ID())).CleanName())
         mq.delay(350)
     end

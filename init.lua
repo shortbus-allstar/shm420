@@ -25,7 +25,7 @@ local dps = require('routines.dps')
 local ui = require('interface.gui')
 
 
-
+lib.debugxtars()
 state.updateLoopState()
 
 mq.bind('/test',binds.testbind)

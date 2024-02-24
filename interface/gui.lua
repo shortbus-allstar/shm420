@@ -2,6 +2,7 @@ local mq = require('mq')
 local state = require('utils.state')
 local conf = require('interface.getconfig')
 require('ImGui')
+local events = require('utils.events')
 local ui = {}
 local anim = mq.FindTextureAnimation('A_SpellIcons')
 local classanim = mq.FindTextureAnimation('A_DragItem')
@@ -333,8 +334,13 @@ function ui.main()
                 
                 os.execute('del "' .. zipFilePath .. '"')
             end
-
             ImGui.PopStyleColor()
+
+            if ImGui.IsItemHovered() and state.version ~= state.githubver and ImGui.IsItemHovered() then
+                ImGui.SetTooltip("This update includes a config change. Saving a preset as a backup is recommended")
+            end
+
+            
 
             ImGui.SameLine()
 
@@ -1395,6 +1401,7 @@ function ui.main()
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
             end
             
             ImGui.SameLine()
@@ -1723,6 +1730,7 @@ function ui.main()
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
             end
             
             ImGui.SameLine()
@@ -1988,6 +1996,7 @@ function ui.main()
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
             end
             
             ImGui.SameLine()
@@ -2379,6 +2388,7 @@ function ui.main()
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
             end
             
             ImGui.SameLine()
@@ -2715,6 +2725,7 @@ function ui.main()
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
             end
             
             ImGui.SameLine()
@@ -2740,20 +2751,12 @@ function ui.main()
         end
 
         if ImGui.BeginTabItem(icons.FA_LIST .. '  Conditions') then
-            local totalWidth, _ = ImGui.GetContentRegionAvail()
-            local columnWidth = totalWidth / 2
-
             -- Your Misc tab content goes here
             for k, _ in pairs(state.config.conds) do
                 if k ~= 'newcond' then
                     drawInputRow(state.config.conds[k],k)
                 end
             end
-
-
-        
-            ImGui.Columns(1)
-        
 
             local windowHeight = ImGui.GetWindowHeight()
             local buttonPosY = windowHeight - BUTTON_SIZE - 10  -- Adjust the spacing as needed
@@ -2765,6 +2768,7 @@ function ui.main()
             if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
             end
             
             ImGui.SameLine()
@@ -2842,13 +2846,127 @@ function ui.main()
                 state.config.conds[newTableName].type = state.config.conds.newcond.type
                 state.config.conds[newTableName].tar = state.config.conds.newcond.tar
                 state.config.conds[newTableName].cond = state.config.conds.newcond.cond
+                mq.cmdf('/declare "%s" global 0',newTableName)
             end
 
             ImGui.SameLine()
 
             if ImGui.Button('Delete\nCondition', 75, BUTTON_SIZE) then
                 local newTableName = state.config.conds.newcond.name
+                mq.cmdf('/deletevar "%s"',newTableName)
                 state.config.conds[newTableName] = nil
+            end
+
+            ImGui.EndTabItem()
+        end
+
+        if ImGui.BeginTabItem(icons.FA_FILE_TEXT_O .. '  Events') then
+            -- Your Misc tab content goes here
+            for i, V in pairs(state.config.events) do
+                if V ~= state.config.events.newevent then
+                    ImGui.Text('Cmd: ' .. state.config.events[i].cmd)
+                    ImGui.Text('Trigger: ' .. state.config.events[i].trig)
+                    ImGui.Text('Cmd Delay: ' .. state.config.events[i].cmddelay)
+                    ImGui.Text('Loop Delay: ' .. state.config.events[i].loopdelay)
+                    ImGui.NewLine()
+                end
+            end
+
+            local windowHeight = ImGui.GetWindowHeight()
+            local buttonPosY = windowHeight - BUTTON_SIZE - 10  -- Adjust the spacing as needed
+        
+            ImGui.SetCursorPosY(buttonPosY)
+
+            -- Create the first button
+            local buttonLabel1 = "Save\nConfig"
+            if ImGui.Button(buttonLabel1, BUTTON_SIZE, BUTTON_SIZE) then
+                conf.saveConfig(conf.path,state.config,conf.iniorder)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
+                mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
+            end
+            
+            ImGui.SameLine()
+            
+            local buttonLabel2 = "Load\nConfig"
+            if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
+                state.config = conf.initConfig(conf.path)
+                state.config.conds = conf.getConds()
+            end
+
+            ImGui.SameLine()
+
+            if ImGui.Button(string.format('Reload\n     ' .. icons.FA_REFRESH), BUTTON_SIZE, BUTTON_SIZE) then
+                mq.cmd('/multiline ; /lua stop shm420 ; /timed 5 /lua run shm420')
+            end
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 25) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 55) 
+
+            local key = 1
+
+            ImGui.Text("Command:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(360)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 54) 
+            state.config.events.newevent.cmd = ImGui.InputText("##Cmd" .. key, state.config.events.newevent.cmd or "", 128)
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 417) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 32) 
+        
+        
+        
+            ImGui.Text("Trigger:")
+            ImGui.SameLine()
+            ImGui.SetNextItemWidth(335)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 27) 
+            state.config.events.newevent.trig = ImGui.InputText("##Trig" .. key, state.config.events.newevent.trig or "", 128)
+
+            ImGui.SameLine()
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 354) 
+            ImGui.SetNextItemWidth(75)
+
+        
+            local newcmddelay, changedcmddelay = ImGui.InputFloat("Cmd Delay", state.config.events.newevent.cmddelay)
+            if changedcmddelay then
+                state.config.events.newevent.cmddelay = newcmddelay
+            end
+
+            ImGui.SameLine()
+ 
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 150) 
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 25) 
+            ImGui.SetNextItemWidth(75)
+            
+        
+            local newloopdelay, changedloopdelay = ImGui.InputFloat("Loop Delay", state.config.events.newevent.loopdelay)
+            if changedloopdelay then
+                state.config.events.newevent.loopdelay = newloopdelay
+            end
+
+            ImGui.SameLine()
+
+            if ImGui.Button('Add\nEvent', 75, BUTTON_SIZE) then
+                local newTableName = #state.config.events + 1
+                state.config.events[newTableName] = {}
+                state.config.events[newTableName].trig = state.config.events.newevent.trig
+                state.config.events[newTableName].cmd = state.config.events.newevent.cmd
+                state.config.events[newTableName].cmddelay = tostring(state.config.events.newevent.cmddelay)
+                state.config.events[newTableName].loopdelay = tostring(state.config.events.newevent.loopdelay)
+                events.addevents(state.config.events.newevent.trig,state.config.events.newevent.cmd,tostring(state.config.events.newevent.cmddelay),tostring(state.config.events.newevent.loopdelay))
+            end
+
+            ImGui.SameLine()
+
+            if ImGui.Button('Delete\nEvent', 75, BUTTON_SIZE) then
+                local newTableName = state.config.events.newevent.cmd
+                mq.unevent(newTableName)
+                for i, _ in ipairs(state.config.events) do
+                    if state.config.events[i].cmd == newTableName then
+                        state.config.events[i] = nil
+                    end
+                end
             end
 
             ImGui.EndTabItem()

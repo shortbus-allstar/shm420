@@ -44,7 +44,7 @@ local function processQueue()
 
     if category ~= 'heal' then checkHeal() end
 
-    if category ~= 'heal' and category ~= 'rez'and #state.condqueue > 0 then
+    if category ~= 'heal' and category ~= 'rez'and not (category == 'debuff' and mq.TLO.Spawn(abiltarget).Named()) and #state.condqueue > 0 then
         write.Warn('Changing ability to %s',state.condqueue[1].name)
         abiltype = state.condqueue[1].type
         abiltarget = state.condqueue[1].target
@@ -78,7 +78,7 @@ local function processQueue()
         mq.cmd('/attack off')
     end
 
-    if mq.TLO.Target.ID() ~= abiltarget and abiltarget ~= nil then
+    if mq.TLO.Target.ID() ~= abiltarget and abiltarget ~= nil and not state.paused then
         mq.cmdf('/squelch /mqt id %s',abiltarget)
         write.Info('Targeting %s',mq.TLO.Spawn(abiltarget).CleanName())
         mq.delay(250)

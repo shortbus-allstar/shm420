@@ -6,30 +6,78 @@ local cfgpath = mq.configDir .. "\\SHM420_" .. mq.TLO.Me.CleanName() .. ".ini"
 local M = {path = cfgpath}
 
 M.defaults = {
-    newcond = {
-        name = '',
-        type = '',
-        tar = nil,
-        cond = ''
-    },
-    
-    healpot = {
-        name = 'Distillate of Celestial Healing XV',
-        type = 'item',
-        tar = nil,
-        cond = '${If[${Me.PctHPs}<=45,1,0]}'
-    },
-
-    colife = {
-        name = 'Barbarian Hunting Spear',
-        type = 'item',
-        tar = 'MA Target',
-        cond = '${If[${SpawnCount[npc radius 50 zradius 10]>=5,1,0]}'
-    }
-
-
+	['Ancestral Aid'] = {
+		['name'] = 'Ancestral Aid',
+		['type'] = 'alt',
+		['tar'] = 'None',
+		['cond'] = '${If[(${Me.Song[Fierce Eye].ID}||${Target.Named}) && ${Me.CombatState.Equal[COMBAT]},1,0]}',
+	},
+	['Barbarian Hunting Spear'] = {
+		['name'] = 'Barbarian Hunting Spear',
+		['type'] = 'item',
+		['tar'] = 'None',
+		['cond'] = '${If[${SpawnCount[npc radius 50 zradius 10]}>=5 && ${Me.CombatState.Equal[COMBAT]},1,0]}',
+	},
+	['Spire of Ancestors'] = {
+		['name'] = 'Spire of Ancestors',
+		['type'] = 'alt',
+		['tar'] = 'None',
+		['cond'] = '${If[(${Me.Song[Fierce Eye].ID}||${Target.Named}) && ${Me.CombatState.Equal[COMBAT]},1,0]}',
+	},
+	['Pack of Wurt'] = {
+		['name'] = 'Pack of Wurt',
+		['type'] = 'spell',
+		['tar'] = 'None',
+		['cond'] = '${If[!${Me.Buff[Pack of Wurt].ID} && !${Select[${Zone.ID},151,202,203,219,344,345,463,737,33480,33113]},1,0]}',
+	},
+	['newcond'] = {
+		['name'] = '',
+		['type'] = 'spell',
+		['tar'] = 'None',
+		['cond'] = '',
+	},
+	['Rabid Bear'] = {
+		['name'] = 'Rabid Bear',
+		['type'] = 'alt',
+		['tar'] = 'None',
+		['cond'] = '${If[${SpawnCount[npc radius 50 zradius 10]}>=5 && ${Me.CombatState.Equal[COMBAT]},1,0]}',
+	},
+	['Spirit Call'] = {
+		['name'] = 'Spirit Call',
+		['type'] = 'alt',
+		['tar'] = 'MA Target',
+		['cond'] = '${If[(${Me.Song[Fierce Eye].ID}||${Target.Named}) && ${Me.CombatState.Equal[COMBAT]},1,0]}',
+	},
+	['Distillate of Celestial Healing XV'] = {
+		['name'] = 'Distillate of Celestial Healing XV',
+		['type'] = 'item',
+		['tar'] = 'None',
+		['cond'] = '${If[${Me.PctHPs}<=45,1,0]}',
+	},
 }
 
+M.events = {
+    newevent = {
+        trig = '',
+        cmd = '',
+        cmddelay = 10,
+        loopdelay = 0
+    },
+
+    {
+        trig = '#1# tells you, #*#',
+        cmd = '/echo #1# sent me a tell',
+        cmddelay = '10',
+        loopdelay = '0'
+    },
+
+    {
+        trig = '#1# tells the group, \'Heal me\'',
+        cmd = '/multiline ; /stopcast ; /timed 2 /tar #1# ; /timed 5 /cast 1',
+        cmddelay = '100',
+        loopdelay = '4500'
+    }
+}
 
 M.iniorder = {'General', 'Buffs', 'KeywordCustom', 'Heals', 'Combat', 'Shaman', 'Pet', 'Spells', 'Powersource', 'Burn'}
 
@@ -43,6 +91,18 @@ function M.getConds()
         M.defaults = configData()
     end
     return M.defaults
+end
+
+function M.getEvents()
+    local configData, err = loadfile(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua")
+    if err then 
+        write.Info('Events lua not found, generating defaults')
+        mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", M.events)
+    elseif configData then
+        write.Info('Events found at %s',mq.luaDir .. "\\shm420\\utils\\eventcfg.lua")
+        M.events = configData()
+    end
+    return M.events
 end
 
 function M.initConfig(cfgpath)
