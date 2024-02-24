@@ -48,6 +48,17 @@ function M.rezSickCount(toon)
     return cnt
 end
 
+function M.rezSickSelf()
+    local cnt = 0
+    if mq.TLO.Me.Buff('Resurrection Sickness')() then
+        cnt = cnt + 1
+    end
+    if mq.TLO.Me.Buff('Revival Sickness')() then
+        cnt = cnt + 1
+    end
+    return cnt
+end
+
 function M.checkGroupAil()
     if tostring(state.config.General.UseDNet) ~= 'On' or tostring(state.config.Shaman.Cures) ~= 'On' then return
     else
@@ -99,7 +110,7 @@ function M.checkGroupAil()
                 curetype = 'corr'
                 return curetarget, curetype, groupcureok 
             end
-            if mq.TLO.Debuff.Detrimentals() ~= 0 then
+            if mq.TLO.Debuff.Detrimentals() > M.rezsickSelf() then
                 curetarget = mq.TLO.Me.ID()
                 curetype = 'det'
                 return curetarget, curetype, groupcureok 
