@@ -10,6 +10,10 @@
 
    Here is an example using one in a separate shm420 condition:
 
+     ``` Name: Pack of Wurt```
+  
+   ```Condition: ${If[!${Me.Buff[Pack of Wurt].ID} && !${Select[${Zone.ID},151,202,203,219,344,345,463,737,33480,33113]},1,0]}```
+
   ``` Name: /echo Pack of Wurt not needed```
   
    ```Condition: ${If[${Pack of Wurt}==0,1,0]}```
