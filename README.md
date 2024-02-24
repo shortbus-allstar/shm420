@@ -2,16 +2,16 @@
 
 1. Conditions are now global variables. For example, if you have a condition named "Spire", using
 
-   /echo ${Spire}
+   ```/echo ${Spire}```
 
    will output 0 if false and 1 if true. This also works using commands as names:
 
-   /if (${/multiline ; /mqp ; /cast etc etc}==1) /echo asdf
+   ```/if (${/multiline ; /mqp ; /cast etc etc}==1) /echo asdf```
 
    Here is an example using one in a separate shm420 condition:
 
-   Name: /echo Pack of Wurt not needed
-   Condition: ${If[${Pack of Wurt}==0,1,0]}
+  ``` Name: /echo Pack of Wurt not needed```
+   ```Condition: ${If[${Pack of Wurt}==0,1,0]}```
 
    For extra clarity, whatever is inside of the Name: [Input Text] will be what is inside of the ${}.
 
@@ -19,8 +19,8 @@
 
    Example:
 
-   Cmd: /echo #1# sent you a tell
-   Trigger: #1# tells you, '#*#'
+   ```Cmd: /echo #1# sent you a tell```
+   ```Trigger: #1# tells you, '#*#'```
 
    To delete an event, type the matching command in the new event input text box and click delete event.
    
