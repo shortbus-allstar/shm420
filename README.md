@@ -30,7 +30,7 @@
 
    To delete an event, type the matching command in the new event input text box and click delete event.
    
-   When adding an event, the cmd delay is the delay in ms between consecutive executions of that specific command if it is triggered rapidly multiple times.
+   When adding an event, the cmd delay is the delay in ms between consecutive executions of that specific command if it is triggered rapidly.
    The loop delay (ms) is how long the main loop should pause itself to let the command run its course.
 
 3. After zoning, return to camp is now turned off.
