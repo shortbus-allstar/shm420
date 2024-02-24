@@ -110,7 +110,7 @@ function M.checkGroupAil()
                 curetype = 'corr'
                 return curetarget, curetype, groupcureok 
             end
-            if mq.TLO.Debuff.Detrimentals() > M.rezsickSelf() then
+            if mq.TLO.Debuff.Detrimentals() > M.rezSickSelf() then
                 curetarget = mq.TLO.Me.ID()
                 curetype = 'det'
                 return curetarget, curetype, groupcureok 
