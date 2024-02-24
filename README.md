@@ -25,8 +25,11 @@
    Example:
 
    ```Cmd: /multiline ; /tar #1# ; /timed 10 /useitem Dradir's Scepter of Dreams```
+   
    ```Trigger: #1# is consumed by darkness.'```
+   
    ```Cmd Delay: 1200```
+   
    ```Loop Delay: 1200```
 
    More examples included with update
