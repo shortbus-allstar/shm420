@@ -82,7 +82,7 @@ function M.checkGroupAil()
                     groupcureok = false
                     insert = false
                 end
-                if tonumber(mq.TLO.DanNet(grpMem).O('Debuff.Detrimentals')()) > M.rezSickCount(grpMem) then
+                if not mq.TLO.Group.Member(grpMem).Dead() and mq.TLO.Group.Member(grpMem).Present() and (tonumber(mq.TLO.DanNet(grpMem).O('Debuff.Detrimentals')()) or 0) > M.rezSickCount(grpMem) then
                     curetype = 'det'
                     curetarget = mq.TLO.Group.Member(grpMem).ID()
                 end
