@@ -21,15 +21,12 @@ local function getdebuffs()
 
 end
 
-
-
 local function getdebufftargets()
     local list = mq.getFilteredSpawns(function(s)
     return s.Aggressive() and s.Type() == 'NPC' and not s.Dead() and s.Targetable() and s.LineOfSight() and s.PctHPs() >= tonumber(state.config.Combat.DebuffStop) and s.PctHPs() <= tonumber(state.config.Combat.DebuffAt)
     end)
     return list
 end
-
 
 local function doDebuffs()
     local debuffs = getdebuffs()
@@ -81,8 +78,9 @@ local function doDebuffs()
         end
     end
 
+    state.debuffing = false
+
     if type == 'other' and tostring(state.config.Shaman.Malo) == 'On' or (tar.Named() and tostring(state.config.Shaman.Malo) == 'Named') then
-        state.debuffing = false
         if string.match(tostring(state.config.Shaman.AEMalo), "On|%d+") and aggroCount >= npccount and npccount >= aemalotarmin and not hasmalo then
 
             if string.match(tostring(state.config.Shaman.AEMaloAA), "On") and mq.TLO.Me.AltAbilityReady("Wind of Malaise")() then

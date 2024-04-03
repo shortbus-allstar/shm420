@@ -1,6 +1,13 @@
-$zipFilePath = "C:\MQNext\lua\shm420.zip"
-$targetDir = "C:\MQNext\lua"
-$extractDir = "C:\MQNext\lua\shm420"
+# Get the directory of the script
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+
+# Go up three levels to reach the MQNext folder
+$mqNextDir = Join-Path (Split-Path -Parent $scriptDir) "..\.."
+
+# Define relative paths based on the script's location and MQNext folder
+$zipFilePath = Join-Path $mqNextDir "lua\shm420.zip"
+$targetDir = Join-Path $mqNextDir "lua"
+$extractDir = Join-Path $mqNextDir "lua\shm420"
 
 # Create the target directory if it doesn't exist
 if (-not (Test-Path -Path $extractDir)) {

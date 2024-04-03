@@ -21,7 +21,7 @@ local function handlePet()
         queueAbility(petspells.buff1,'spell')
     elseif mq.TLO.Pet.ID() and not mq.TLO.Pet.Buff(tostring(state.config.Spells.PetBuff2))() and petspells.buff2 then
         queueAbility(petspells.buff2,'spell')
-    elseif mq.TLO.Pet.ID() and mq.TLO.Pet.Height() > 1.4 and petspells.shrink and tostring(state.config.Pet.PetShrink) == 'On' then
+    elseif mq.TLO.Pet.ID() and (mq.TLO.Pet.Height() or 0) > 1.4 and (petspells.shrink or false) and tostring(state.config.Pet.PetShrink) == 'On' then
         queueAbility(petspells.shrink,'spell')
     end
 end

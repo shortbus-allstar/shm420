@@ -64,7 +64,7 @@ local state = {
     clearRezTimer = timer:new(15000),
     timesinceBuffed = {},
     recastTimer = nil,
-    version = 'v2.1.2-beta',
+    version = 'v2.1.3-beta',
     githubver = getGitHubVersion()
 }
 

@@ -60,13 +60,14 @@ function mod.addtoCondQueue(name, type, tar)
 end
 
 function mod.checkcondTimer(table)
-    if table.type == 'alt' then 
+    write.Trace('checkCond name')
+    if table.type == 'alt' and mq.TLO.Me.AltAbility(table.name).Spell.MyCastTime() then 
         if mq.TLO.Me.AltAbility(table.name).Spell.MyCastTime() ~= 0 then 
             return mq.TLO.Me.AltAbility(table.name).Spell.MyCastTime() + 1000 
         else return 10000 end
     end
-    if table.type == 'spell' then return mq.TLO.Spell(table.name).MyCastTime() + 5000 end
-    if table.type == 'item' then return mq.TLO.FindItem(table.name).CastTime() + 5000 end
+    if table.type == 'spell' and mq.TLO.Spell(table.name).MyCastTime() then return mq.TLO.Spell(table.name).MyCastTime() + 5000 end
+    if table.type == 'item' and mq.TLO.FindItem(table.name).CastTime() then return mq.TLO.FindItem(table.name).CastTime() + 5000 end
     if table.type == 'cmd' then return 1000 end
 end
 
