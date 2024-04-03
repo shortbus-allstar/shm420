@@ -1,3 +1,7 @@
+**Patch Notes - v2.1.2-beta**
+
+1. Fixed an issue where the lua would crash when group members die or zone
+
 **Patch Notes - v2.1.1-beta**
 
 1. Fixed an issue with trying to cure Rez Sicknesses off self
