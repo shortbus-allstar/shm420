@@ -40,13 +40,22 @@ local selectedKeyIndex = 1
 local selectedGemIndex = 1
 
 
-local CUSTOM_THEME = {
+local OLD_THEME = {
     windowbg = ImVec4(0.1, 0.2, 0.1, 0.9),
     bg = ImVec4(0, 0.3, 0, 1),
     hovered = ImVec4(0, 0.4, 0, 1),
     active = ImVec4(0, 0.5, 0, 1),
     button = ImVec4(0, 0.3, 0, 1),
     text = ImVec4(1, 0.8, 0, 1),
+}
+
+local CUSTOM_THEME = {
+    windowbg = ImVec4(0, 0.1, 0.2, 0.9),
+    bg = ImVec4(0, 0.3, 0.5, 1),
+    hovered = ImVec4(1, 0.5, 0, 1),
+    active = ImVec4(1, 0.7, 0.2, 1),
+    button = ImVec4(0, 0.2, 0.5, 1),
+    text = ImVec4(1, 1, 1, 1),
 }
 
 local function pushStyle(t)
@@ -238,7 +247,7 @@ end
 function ui.main()
     initcheckboxes()
     if not openGUI then return end
-    pushStyle(CUSTOM_THEME)
+    pushStyle(state.config.selectedTheme)
     openGUI, shouldDrawGUI = ImGui.Begin('SHM420', openGUI, 0)
     if shouldDrawGUI then
         frameCounter = frameCounter + 1
@@ -468,10 +477,10 @@ function ui.main()
                 if mq.TLO.Me.PctMana() <= 35 then return ImVec4(1,0,0,1) end
             end
 
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),mq.TLO.Me.Name())
+            ImGui.Text(mq.TLO.Me.Name())
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Level')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(mq.TLO.Me.Level()))
+            ImGui.Text(tostring(mq.TLO.Me.Level()))
             ImGui.SameLine()
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Shaman')
 
@@ -494,23 +503,23 @@ function ui.main()
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Current Zone:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(mq.TLO.Zone.Name()))
+            ImGui.Text(tostring(mq.TLO.Zone.Name()))
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Group Main Tank:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(mq.TLO.Group.MainTank.Name()))
+            ImGui.Text(tostring(mq.TLO.Group.MainTank.Name()))
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Players in Zone:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(mq.TLO.SpawnCount('pc')()))
+            ImGui.Text(tostring(mq.TLO.SpawnCount('pc')()))
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Currently Casting:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(mq.TLO.Me.Casting.Name()))
+            ImGui.Text(tostring(mq.TLO.Me.Casting.Name()))
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Current Target:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(mq.TLO.Target.CleanName()))
+            ImGui.Text(tostring(mq.TLO.Target.CleanName()))
 
             ImGui.NewLine()
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Debug Info:')
@@ -519,7 +528,7 @@ function ui.main()
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'# in Buff Queue:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(#state.buffqueue))
+            ImGui.Text(tostring(#state.buffqueue))
             ImGui.SameLine()
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2) 
             ImGui.PushStyleColor(ImGuiCol.Text,ImVec4(1,0,0,1))
@@ -530,7 +539,7 @@ function ui.main()
             
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'# in DPS Queue:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(#state.dpsqueue))
+            ImGui.Text(tostring(#state.dpsqueue))
             ImGui.SameLine()
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2) 
             ImGui.PushStyleColor(ImGuiCol.Text,ImVec4(1,0,0,1))
@@ -542,7 +551,7 @@ function ui.main()
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'# in Cond Queue:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(#state.condqueue))
+            ImGui.Text(tostring(#state.condqueue))
             ImGui.SameLine()
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2) 
             ImGui.PushStyleColor(ImGuiCol.Text,ImVec4(1,0,0,1))
@@ -553,28 +562,26 @@ function ui.main()
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Can Mem:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(state.canmem))
+            ImGui.Text(tostring(state.canmem))
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Burning:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(state.burning))
+            ImGui.Text(tostring(state.burning))
 
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Medding:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(state.medding))
+            ImGui.Text(tostring(state.medding))
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Need to Heal:')
             ImGui.SameLine()
-            ImGui.TextColored(ImVec4(0, 1, 1, 1),tostring(state.needheal))
+            ImGui.Text(tostring(state.needheal))
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Log Level:')
             ImGui.SameLine()
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2) 
 
             local options = { "trace", "debug", "info", "warn", "error", "fatal", "help" }
-
-            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 1, 1))
 
             if ImGui.BeginCombo("##loglevel:", state.loglevel, ImGuiComboFlags.None) then
                 for i, option in ipairs(options) do
@@ -598,13 +605,193 @@ function ui.main()
                 ImGui.EndCombo()
             end
 
-            ImGui.PopStyleColor()
+            ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Theme:')
+            ImGui.SameLine()
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2) 
+
+            local themes = {
+                {
+                    windowbg = ImVec4(0.137, 0.224, 0.137, 1),  
+                    bg = ImVec4(0.118, 0.376, 0.118, 1),       
+                    hovered = ImVec4(0.078, 0.306, 0.078, 1),   
+                    active = ImVec4(0.059, 0.267, 0.059, 1),    
+                    button = ImVec4(0.118, 0.376, 0.118, 1),   
+                    text = ImVec4(0.949, 0.949, 0.2, 1),     
+                    name = 'Dank Marijuana Cat Piss Ganja'
+                },
+                {
+                    windowbg = ImVec4(.2, .2, .2, .8),
+                    bg = ImVec4(0.5, 0, 0.7, 1),
+                    hovered = ImVec4(0.6, 0, 0.8, 1),
+                    active = ImVec4(0.7, 0, 0.9, 1),
+                    button = ImVec4(0.4, 0, 0.6, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Purple Transformer"
+                },
+                {
+                    windowbg = ImVec4(0.2, 0, 0.2, 0.9),
+                    bg = ImVec4(0.3, 0, 0.3, 1),
+                    hovered = ImVec4(1, 0, 1, 1),
+                    active = ImVec4(0.8, 0, 0.8, 1),
+                    button = ImVec4(0.6, 0, 0.6, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Double Cup"
+                },
+                {
+                    windowbg = ImVec4(.2, .2, .2, .8),
+                    bg = ImVec4(0.3, 0.3, 0.6, 1),
+                    hovered = ImVec4(0.4, 0.4, 0.7, 1),
+                    active = ImVec4(0.5, 0.5, 0.8, 1),
+                    button = ImVec4(0.2, 0.2, 0.5, 1),
+                    text = ImVec4(1, 1, 1, 1),                
+                    name = "Necrohiss Baby Blue"
+                },
+                {
+                    windowbg = ImVec4(.1, .1, .1, .9),
+                    bg = ImVec4(0.7, 0.2, 0, 1),
+                    hovered = ImVec4(0.8, 0.3, 0, 1),
+                    active = ImVec4(0.9, 0.4, 0, 1),
+                    button = ImVec4(0.6, 0.1, 0, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Very Cool Lava " .. icons.FA_THUMBS_UP
+                },
+                {
+                    windowbg = ImVec4(.1, .1, .1, .9),
+                    bg = ImVec4(0.5, 0.3, 0, 1),
+                    hovered = ImVec4(0.6, 0.4, 0, 1),
+                    active = ImVec4(0.7, 0.5, 0, 1),
+                    button = ImVec4(0.4, 0.2, 0, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Toasted Nuts"
+                },
+                {
+                    windowbg = ImVec4(.3, .3, .3, .8),
+                    bg = ImVec4(0, 0.5, 0.5, 1),
+                    hovered = ImVec4(0, 0.6, 0.6, 1),
+                    active = ImVec4(0, 0.7, 0.7, 1),
+                    button = ImVec4(0, 0.4, 0.4, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Light Blue Transformer"
+                },
+                {
+                    windowbg = ImVec4(.3, .3, .3, .8),
+                    bg = ImVec4(0.7, 0.2, 0.5, 1),
+                    hovered = ImVec4(0.8, 0.3, 0.6, 1),
+                    active = ImVec4(0.9, 0.4, 0.7, 1),
+                    button = ImVec4(0.6, 0.1, 0.4, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Pink Sock"
+                },
+                {
+                    windowbg = ImVec4(.2, .2, .2, .8),
+                    bg = ImVec4(0.7, 0, 0.2, 1),
+                    hovered = ImVec4(0.8, 0, 0.3, 1),
+                    active = ImVec4(0.9, 0, 0.4, 1),
+                    button = ImVec4(0.6, 0, 0.1, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Bloody Pink Sock"
+                },
+                {
+                    windowbg = ImVec4(0.2, 0.05, 0.2, 0.8),
+                    bg = ImVec4(0.5, 0, 0.5, 1),
+                    hovered = ImVec4(0, 1, 0.5, 1),
+                    active = ImVec4(0.2, 0.8, 0.2, 1),
+                    button = ImVec4(0.3, 0, 0.3, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Hulk (Incredible)"
+                },
+                {
+                    windowbg = ImVec4(0.1, 0.05, 0.1, 0.9),
+                    bg = ImVec4(0, 0, 0, 1),
+                    hovered = ImVec4(1, 0, 1, 1),
+                    active = ImVec4(0.8, 0, 0.8, 1),
+                    button = ImVec4(0.6, 0, 0.6, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Cyberpunk"
+                },
+                {
+                    windowbg = ImVec4(0.4, 0.1, 0.1, 0.8),
+                    bg = ImVec4(0.5, 0, 0, 1),
+                    hovered = ImVec4(0, 0, 0.5, 1),
+                    active = ImVec4(0.2, 0.2, 0.8, 1),
+                    button = ImVec4(0.3, 0, 0, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Walmart Spiderman"
+                },
+                {
+                    windowbg = ImVec4(0.4, 0.2, 0, 0.9),
+                    bg = ImVec4(1, 0.5, 0, 1),
+                    hovered = ImVec4(0.5, 0, 0.5, 1),
+                    active = ImVec4(0.7, 0.2, 0.7, 1),
+                    button = ImVec4(0.3, 0.5, 0.3, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Weird Vomit"
+                },
+                {
+                    windowbg = ImVec4(0.4, 0.2, 0, 0.9),
+                    bg = ImVec4(1, 0.5, 0, 1),
+                    hovered = ImVec4(0, 1, 0.5, 1),
+                    active = ImVec4(0.2, 0.8, 0.2, 1),
+                    button = ImVec4(0.3, 0.5, 0.3, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Plastic Minecraft"
+                },
+                {
+                    windowbg = ImVec4(0, 0.1, 0.2, 0.9),
+                    bg = ImVec4(0, 0, 0.3, 1),
+                    hovered = ImVec4(0.5, 0, 1, 1),
+                    active = ImVec4(0.7, 0.2, 1, 1),
+                    button = ImVec4(0.3, 0, 0.7, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Nyquil"
+                },
+                {
+                    windowbg = ImVec4(0.4, 0.4, 0, 0.9),
+                    bg = ImVec4(1, 1, 0, 1),
+                    hovered = ImVec4(1, 0.5, 0, 1),
+                    active = ImVec4(1, 0.8, 0.2, 1),
+                    button = ImVec4(0.7, 0.7, 0, 1),
+                    text = ImVec4(0, 0, 0, 1),
+                    name = "Toxic Piss"
+                },
+                {
+                    windowbg = ImVec4(0, 0.1, 0.2, 0.9),
+                    bg = ImVec4(0, 0.3, 0.5, 1),
+                    hovered = ImVec4(1, 0.5, 0, 1),
+                    active = ImVec4(1, 0.7, 0.2, 1),
+                    button = ImVec4(0, 0.2, 0.5, 1),
+                    text = ImVec4(1, 1, 1, 1),
+                    name = "Goku"
+                },
+
+            }
+
+            if ImGui.BeginCombo("##theme:", state.config.selectedTheme.name, ImGuiComboFlags.None) then
+                for i, theme in ipairs(themes) do
+                    local isSelected = (i == selectedOptionIndex)
+            
+                    ImGui.PushStyleColor(ImGuiCol.Text, isSelected and ImVec4(0, 1, 1, 1) or ImGui.GetStyleColorVec4(ImGuiCol.Text))
+            
+                    if ImGui.Selectable(theme.name, isSelected) then
+                        selectedOptionIndex = i
+                        state.config.selectedTheme = theme -- Update state.loglevel based on the selected option
+                    end
+            
+                    ImGui.PopStyleColor()
+            
+                    -- Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if isSelected then
+                        ImGui.SetItemDefaultFocus()
+                    end
+                end
+            
+                ImGui.EndCombo()
+            end
+
 
             ImGui.NewLine()
 
             ImGui.TextColored(ImVec4(1, 0.8, 0, 1),'Config Presets:')
-
-            ImGui.PushStyleColor(ImGuiCol.Text, ImVec4(0, 1, 1, 1))
 
             local presetList = getPresetList()
             
@@ -631,10 +818,6 @@ function ui.main()
                 ImGui.EndCombo()
             end
             
-            
-            
-
-            ImGui.PopStyleColor()
 
             local function savePreset(presetname)
                 mq.pickle(mq.luaDir .. '\\shm420\\presets\\' .. presetname .. '.lua',state.config)
@@ -1402,6 +1585,25 @@ function ui.main()
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
+                                local M = {
+                    defaulttheme = {
+                        windowbg = tostring(ImVec4(0.137, 0.224, 0.137, 1)),  
+                        bg = tostring(ImVec4(0.118, 0.376, 0.118, 1)),       
+                        hovered = tostring(ImVec4(0.078, 0.306, 0.078, 1)),   
+                        active = tostring(ImVec4(0.059, 0.267, 0.059, 1)),    
+                        button = tostring(ImVec4(0.118, 0.376, 0.118, 1)),   
+                        text = tostring(ImVec4(0.949, 0.949, 0.2, 1)),     
+                        name = 'Dank Marijuana Cat Piss Ganja'
+                    }
+                }
+                M.defaulttheme.windowbg = tostring(state.config.selectedTheme.windowbg)
+                M.defaulttheme.bg = tostring(state.config.selectedTheme.bg)
+                M.defaulttheme.hovered = tostring(state.config.selectedTheme.hovered)
+                M.defaulttheme.active = tostring(state.config.selectedTheme.active)
+                M.defaulttheme.button = tostring(state.config.selectedTheme.button)
+                M.defaulttheme.text = tostring(state.config.selectedTheme.text)
+                M.defaulttheme.name = state.config.selectedTheme.name
+                mq.pickle(mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua", M.defaulttheme)
             end
             
             ImGui.SameLine()
@@ -1410,6 +1612,7 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
                 state.config.conds = conf.getConds()
+                state.config.selectedTheme = conf.getTheme()
             end
 
             ImGui.SameLine()
@@ -1731,6 +1934,25 @@ function ui.main()
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
+                                local M = {
+                    defaulttheme = {
+                        windowbg = tostring(ImVec4(0.137, 0.224, 0.137, 1)),  
+                        bg = tostring(ImVec4(0.118, 0.376, 0.118, 1)),       
+                        hovered = tostring(ImVec4(0.078, 0.306, 0.078, 1)),   
+                        active = tostring(ImVec4(0.059, 0.267, 0.059, 1)),    
+                        button = tostring(ImVec4(0.118, 0.376, 0.118, 1)),   
+                        text = tostring(ImVec4(0.949, 0.949, 0.2, 1)),     
+                        name = 'Dank Marijuana Cat Piss Ganja'
+                    }
+                }
+                M.defaulttheme.windowbg = tostring(state.config.selectedTheme.windowbg)
+                M.defaulttheme.bg = tostring(state.config.selectedTheme.bg)
+                M.defaulttheme.hovered = tostring(state.config.selectedTheme.hovered)
+                M.defaulttheme.active = tostring(state.config.selectedTheme.active)
+                M.defaulttheme.button = tostring(state.config.selectedTheme.button)
+                M.defaulttheme.text = tostring(state.config.selectedTheme.text)
+                M.defaulttheme.name = state.config.selectedTheme.name
+                mq.pickle(mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua", M.defaulttheme)
             end
             
             ImGui.SameLine()
@@ -1739,6 +1961,7 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
                 state.config.conds = conf.getConds()
+                state.config.selectedTheme = conf.getTheme()
             end
 
             ImGui.SameLine()
@@ -1997,6 +2220,25 @@ function ui.main()
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
+                                local M = {
+                    defaulttheme = {
+                        windowbg = tostring(ImVec4(0.137, 0.224, 0.137, 1)),  
+                        bg = tostring(ImVec4(0.118, 0.376, 0.118, 1)),       
+                        hovered = tostring(ImVec4(0.078, 0.306, 0.078, 1)),   
+                        active = tostring(ImVec4(0.059, 0.267, 0.059, 1)),    
+                        button = tostring(ImVec4(0.118, 0.376, 0.118, 1)),   
+                        text = tostring(ImVec4(0.949, 0.949, 0.2, 1)),     
+                        name = 'Dank Marijuana Cat Piss Ganja'
+                    }
+                }
+                M.defaulttheme.windowbg = tostring(state.config.selectedTheme.windowbg)
+                M.defaulttheme.bg = tostring(state.config.selectedTheme.bg)
+                M.defaulttheme.hovered = tostring(state.config.selectedTheme.hovered)
+                M.defaulttheme.active = tostring(state.config.selectedTheme.active)
+                M.defaulttheme.button = tostring(state.config.selectedTheme.button)
+                M.defaulttheme.text = tostring(state.config.selectedTheme.text)
+                M.defaulttheme.name = state.config.selectedTheme.name
+                mq.pickle(mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua", M.defaulttheme)
             end
             
             ImGui.SameLine()
@@ -2005,6 +2247,7 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
                 state.config.conds = conf.getConds()
+                state.config.selectedTheme = conf.getTheme()
             end
 
             ImGui.SameLine()
@@ -2389,6 +2632,25 @@ function ui.main()
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
+                                local M = {
+                    defaulttheme = {
+                        windowbg = tostring(ImVec4(0.137, 0.224, 0.137, 1)),  
+                        bg = tostring(ImVec4(0.118, 0.376, 0.118, 1)),       
+                        hovered = tostring(ImVec4(0.078, 0.306, 0.078, 1)),   
+                        active = tostring(ImVec4(0.059, 0.267, 0.059, 1)),    
+                        button = tostring(ImVec4(0.118, 0.376, 0.118, 1)),   
+                        text = tostring(ImVec4(0.949, 0.949, 0.2, 1)),     
+                        name = 'Dank Marijuana Cat Piss Ganja'
+                    }
+                }
+                M.defaulttheme.windowbg = tostring(state.config.selectedTheme.windowbg)
+                M.defaulttheme.bg = tostring(state.config.selectedTheme.bg)
+                M.defaulttheme.hovered = tostring(state.config.selectedTheme.hovered)
+                M.defaulttheme.active = tostring(state.config.selectedTheme.active)
+                M.defaulttheme.button = tostring(state.config.selectedTheme.button)
+                M.defaulttheme.text = tostring(state.config.selectedTheme.text)
+                M.defaulttheme.name = state.config.selectedTheme.name
+                mq.pickle(mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua", M.defaulttheme)
             end
             
             ImGui.SameLine()
@@ -2397,6 +2659,7 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
                 state.config.conds = conf.getConds()
+                state.config.selectedTheme = conf.getTheme()
             end
 
             ImGui.SameLine()
@@ -2726,6 +2989,25 @@ function ui.main()
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
+                                local M = {
+                    defaulttheme = {
+                        windowbg = tostring(ImVec4(0.137, 0.224, 0.137, 1)),  
+                        bg = tostring(ImVec4(0.118, 0.376, 0.118, 1)),       
+                        hovered = tostring(ImVec4(0.078, 0.306, 0.078, 1)),   
+                        active = tostring(ImVec4(0.059, 0.267, 0.059, 1)),    
+                        button = tostring(ImVec4(0.118, 0.376, 0.118, 1)),   
+                        text = tostring(ImVec4(0.949, 0.949, 0.2, 1)),     
+                        name = 'Dank Marijuana Cat Piss Ganja'
+                    }
+                }
+                M.defaulttheme.windowbg = tostring(state.config.selectedTheme.windowbg)
+                M.defaulttheme.bg = tostring(state.config.selectedTheme.bg)
+                M.defaulttheme.hovered = tostring(state.config.selectedTheme.hovered)
+                M.defaulttheme.active = tostring(state.config.selectedTheme.active)
+                M.defaulttheme.button = tostring(state.config.selectedTheme.button)
+                M.defaulttheme.text = tostring(state.config.selectedTheme.text)
+                M.defaulttheme.name = state.config.selectedTheme.name
+                mq.pickle(mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua", M.defaulttheme)
             end
             
             ImGui.SameLine()
@@ -2734,6 +3016,7 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
                 state.config.conds = conf.getConds()
+                state.config.selectedTheme = conf.getTheme()
             end
 
             ImGui.SameLine()
@@ -2769,6 +3052,25 @@ function ui.main()
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
+                local M = {
+                    defaulttheme = {
+                        windowbg = tostring(ImVec4(0.137, 0.224, 0.137, 1)),  
+                        bg = tostring(ImVec4(0.118, 0.376, 0.118, 1)),       
+                        hovered = tostring(ImVec4(0.078, 0.306, 0.078, 1)),   
+                        active = tostring(ImVec4(0.059, 0.267, 0.059, 1)),    
+                        button = tostring(ImVec4(0.118, 0.376, 0.118, 1)),   
+                        text = tostring(ImVec4(0.949, 0.949, 0.2, 1)),     
+                        name = 'Dank Marijuana Cat Piss Ganja'
+                    }
+                }
+                M.defaulttheme.windowbg = tostring(state.config.selectedTheme.windowbg)
+                M.defaulttheme.bg = tostring(state.config.selectedTheme.bg)
+                M.defaulttheme.hovered = tostring(state.config.selectedTheme.hovered)
+                M.defaulttheme.active = tostring(state.config.selectedTheme.active)
+                M.defaulttheme.button = tostring(state.config.selectedTheme.button)
+                M.defaulttheme.text = tostring(state.config.selectedTheme.text)
+                M.defaulttheme.name = state.config.selectedTheme.name
+                mq.pickle(mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua", M.defaulttheme)
             end
             
             ImGui.SameLine()
@@ -2777,6 +3079,7 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
                 state.config.conds = conf.getConds()
+                state.config.selectedTheme = conf.getTheme()
             end
 
             ImGui.SameLine()
@@ -2883,6 +3186,25 @@ function ui.main()
                 conf.saveConfig(conf.path,state.config,conf.iniorder)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\conditions.lua", state.config.conds)
                 mq.pickle(mq.luaDir .. "\\shm420\\utils\\eventcfg.lua", state.config.events)
+                                local M = {
+                    defaulttheme = {
+                        windowbg = tostring(ImVec4(0.137, 0.224, 0.137, 1)),  
+                        bg = tostring(ImVec4(0.118, 0.376, 0.118, 1)),       
+                        hovered = tostring(ImVec4(0.078, 0.306, 0.078, 1)),   
+                        active = tostring(ImVec4(0.059, 0.267, 0.059, 1)),    
+                        button = tostring(ImVec4(0.118, 0.376, 0.118, 1)),   
+                        text = tostring(ImVec4(0.949, 0.949, 0.2, 1)),     
+                        name = 'Dank Marijuana Cat Piss Ganja'
+                    }
+                }
+                M.defaulttheme.windowbg = tostring(state.config.selectedTheme.windowbg)
+                M.defaulttheme.bg = tostring(state.config.selectedTheme.bg)
+                M.defaulttheme.hovered = tostring(state.config.selectedTheme.hovered)
+                M.defaulttheme.active = tostring(state.config.selectedTheme.active)
+                M.defaulttheme.button = tostring(state.config.selectedTheme.button)
+                M.defaulttheme.text = tostring(state.config.selectedTheme.text)
+                M.defaulttheme.name = state.config.selectedTheme.name
+                mq.pickle(mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua", M.defaulttheme)
             end
             
             ImGui.SameLine()
@@ -2891,6 +3213,7 @@ function ui.main()
             if ImGui.Button(buttonLabel2, BUTTON_SIZE, BUTTON_SIZE) then
                 state.config = conf.initConfig(conf.path)
                 state.config.conds = conf.getConds()
+                state.config.selectedTheme = conf.getTheme()
             end
 
             ImGui.SameLine()

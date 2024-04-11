@@ -81,6 +81,16 @@ M.events = {
 
 M.iniorder = {'General', 'Buffs', 'KeywordCustom', 'Heals', 'Combat', 'Shaman', 'Pet', 'Spells', 'Powersource', 'Burn'}
 
+M.defaulttheme = {
+    windowbg = tostring(ImVec4(0.137, 0.224, 0.137, 1)),  
+    bg = tostring(ImVec4(0.118, 0.376, 0.118, 1)),       
+    hovered = tostring(ImVec4(0.078, 0.306, 0.078, 1)),   
+    active = tostring(ImVec4(0.059, 0.267, 0.059, 1)),    
+    button = tostring(ImVec4(0.118, 0.376, 0.118, 1)),   
+    text = tostring(ImVec4(0.949, 0.949, 0.2, 1)),     
+    name = 'Dank Marijuana Cat Piss Ganja'
+}
+
 function M.getConds()
     local configData, err = loadfile(mq.luaDir .. "\\shm420\\utils\\conditions.lua")
     if err then 
@@ -103,6 +113,39 @@ function M.getEvents()
         M.events = configData()
     end
     return M.events
+end
+
+local function parseImVec4(str)
+    local values = {}
+    for val in str:gmatch("%d+%.?%d*") do
+        table.insert(values, tonumber(val))
+    end
+    return ImVec4(values[1] or 0, values[2] or 0, values[3] or 0, values[4] or 0)
+end
+
+function M.getTheme()
+    local theme, err = loadfile(mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua")
+    if err then 
+        write.Info('Theme lua not found, generating defaults')
+        mq.pickle(mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua", M.defaulttheme)
+        M.defaulttheme.windowbg = parseImVec4(M.defaulttheme.windowbg)
+        M.defaulttheme.bg = parseImVec4(M.defaulttheme.bg)
+        M.defaulttheme.hovered = parseImVec4(M.defaulttheme.hovered)
+        M.defaulttheme.active = parseImVec4(M.defaulttheme.active)
+        M.defaulttheme.button = parseImVec4(M.defaulttheme.button)
+        M.defaulttheme.text = parseImVec4(M.defaulttheme.text)
+    elseif theme then
+        write.Info('Theme found at %s',mq.luaDir .. "\\shm420\\interface\\selectedTheme.lua")
+        local stringtheme = theme()
+        stringtheme.windowbg = parseImVec4(stringtheme.windowbg)
+        stringtheme.bg = parseImVec4(stringtheme.bg)
+        stringtheme.hovered = parseImVec4(stringtheme.hovered)
+        stringtheme.active = parseImVec4(stringtheme.active)
+        stringtheme.button = parseImVec4(stringtheme.button)
+        stringtheme.text = parseImVec4(stringtheme.text)
+        M.defaulttheme = stringtheme
+    end
+    return M.defaulttheme
 end
 
 function M.initConfig(cfgpath)

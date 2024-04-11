@@ -64,12 +64,13 @@ local state = {
     clearRezTimer = timer:new(15000),
     timesinceBuffed = {},
     recastTimer = nil,
-    version = 'v2.1.3-beta',
+    version = 'v2.1.4-beta',
     githubver = getGitHubVersion()
 }
 
 state.config.conds = conf.getConds()
 state.config.events = conf.getEvents()
+state.config.selectedTheme = conf.getTheme()
 
 mq.cmd('/deletevar * global')
 
