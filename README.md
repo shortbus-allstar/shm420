@@ -1,4 +1,7 @@
 **Patch Notes - v2.1.3-beta**
+1. Added custom UI themes
+   
+**Patch Notes - v2.1.3-beta**
 1. Changed the update script to use a relative directory path instead of the absolute path C:\MQNext
 2. Fixed an issue where the condhandler would crash the lua while zoning
 3. Fixed an issue where changing pet spells in the GUI would crash the lua
