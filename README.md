@@ -1,3 +1,9 @@
+**Patch Notes - v2.1.3-beta**
+1. Changed the update script to use a relative directory path instead of the absolute path C:\MQNext
+2. Fixed an issue where the condhandler would crash the lua while zoning
+3. Fixed an issue where changing pet spells in the GUI would crash the lua
+4. Fixed an issue where DoTs and Nukes being cast were linked to the malo setting
+   
 **Patch Notes - v2.1.2-beta**
 
 1. Fixed an issue where the lua would crash when group members die or zone
