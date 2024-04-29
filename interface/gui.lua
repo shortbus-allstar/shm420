@@ -30,7 +30,7 @@ local categories = { "Buffs", "Heals", "DPS", "Pet", "Debuffs" }
 local keysByCategory = {
     Buffs = { "Canni", "Focus", "SoW", "Panther", "Growth", "Sloth", "Regen", "Ward", "FocusBuff", "SelfDI" },
     Heals = { "Panic1", "Panic2", "Panic3", "Panic4", "Panic5", "Heal1", "Heal2", "Heal3", "Heal4", "Heal5", "HealClicky1", "HealClicky2", "HealClicky3", "HoT", "PanicClick1", "PanicClick2", "GroupHeal1", "GroupHeal2", "GroupClick1", "GroupClick2", "DisSing", "PoiSing", "CorrSing", "CurseSing", "DisGrp", "PoiGrp", "CorrGrp", "CurseGrp" },
-    DPS = { "Gift", "DD1", "DD2", "DD3", "DPSClick1", "DPSClick2", "DoT1", "DoT2", "DoT3", "DoT4" },
+    DPS = { "Gift", "DD1", "DD2", "DD3", "DPSClick1", "DPSClick2", "DoT1", "DoT2", "DoT3", "DoT4", "DoT5", "DoT6", "DoT7", "DoT8", "DoT9", "DoT10", "DoT11"},
     Pet = { "PetSum", "PetShrink", "PetBuff1", "PetBuff2" },
     Debuffs = { "AESlow", "Cripple", "Feralize", "AEMalo", "Malo", "UnresMalo", "Slow" },
 }
@@ -1395,6 +1395,84 @@ function ui.main()
                 if changedDoT4 then
                     state.config.Spells.DoT4 = newTextDoT4
                 end
+                
+                ImGui.Text("DoT 5:")
+                ImGui.SameLine()
+                local inputTextBufferDoT5 = state.config.Spells.DoT5
+                local inputTextCallbackDoT5 = function(inputText)
+                    state.config.Spells.DoT5 = inputText
+                end
+                local newTextDoT5, changedDoT5 = ImGui.InputText("##DoT5Input", inputTextBufferDoT5, ImGuiInputTextFlags.None, inputTextCallbackDoT5)
+                if changedDoT5 then
+                    state.config.Spells.DoT5 = newTextDoT5
+                end
+                
+                ImGui.Text("DoT 6:")
+                ImGui.SameLine()
+                local inputTextBufferDoT6 = state.config.Spells.DoT6
+                local inputTextCallbackDoT6 = function(inputText)
+                    state.config.Spells.DoT6 = inputText
+                end
+                local newTextDoT6, changedDoT6 = ImGui.InputText("##DoT6Input", inputTextBufferDoT6, ImGuiInputTextFlags.None, inputTextCallbackDoT6)
+                if changedDoT6 then
+                    state.config.Spells.DoT6 = newTextDoT6
+                end
+                
+                ImGui.Text("DoT 7:")
+                ImGui.SameLine()
+                local inputTextBufferDoT7 = state.config.Spells.DoT7
+                local inputTextCallbackDoT7 = function(inputText)
+                    state.config.Spells.DoT7 = inputText
+                end
+                local newTextDoT7, changedDoT7 = ImGui.InputText("##DoT7Input", inputTextBufferDoT7, ImGuiInputTextFlags.None, inputTextCallbackDoT7)
+                if changedDoT7 then
+                    state.config.Spells.DoT7 = newTextDoT7
+                end
+                
+                ImGui.Text("DoT 8:")
+                ImGui.SameLine()
+                local inputTextBufferDoT8 = state.config.Spells.DoT8
+                local inputTextCallbackDoT8 = function(inputText)
+                    state.config.Spells.DoT8 = inputText
+                end
+                local newTextDoT8, changedDoT8 = ImGui.InputText("##DoT8Input", inputTextBufferDoT8, ImGuiInputTextFlags.None, inputTextCallbackDoT8)
+                if changedDoT8 then
+                    state.config.Spells.DoT8 = newTextDoT8
+                end
+                
+                ImGui.Text("DoT 9:")
+                ImGui.SameLine()
+                local inputTextBufferDoT9 = state.config.Spells.DoT9
+                local inputTextCallbackDoT9 = function(inputText)
+                    state.config.Spells.DoT9 = inputText
+                end
+                local newTextDoT9, changedDoT9 = ImGui.InputText("##DoT9Input", inputTextBufferDoT9, ImGuiInputTextFlags.None, inputTextCallbackDoT9)
+                if changedDoT9 then
+                    state.config.Spells.DoT9 = newTextDoT9
+                end
+                
+                ImGui.Text("DoT 10:")
+                ImGui.SameLine()
+                local inputTextBufferDoT10 = state.config.Spells.DoT10
+                local inputTextCallbackDoT10 = function(inputText)
+                    state.config.Spells.DoT10 = inputText
+                end
+                local newTextDoT10, changedDoT10 = ImGui.InputText("##DoT10Input", inputTextBufferDoT10, ImGuiInputTextFlags.None, inputTextCallbackDoT10)
+                if changedDoT10 then
+                    state.config.Spells.DoT10 = newTextDoT10
+                end
+                
+                ImGui.Text("DoT 11:")
+                ImGui.SameLine()
+                local inputTextBufferDoT11 = state.config.Spells.DoT11
+                local inputTextCallbackDoT11 = function(inputText)
+                    state.config.Spells.DoT11 = inputText
+                end
+                local newTextDoT11, changedDoT11 = ImGui.InputText("##DoT11Input", inputTextBufferDoT11, ImGuiInputTextFlags.None, inputTextCallbackDoT11)
+                if changedDoT11 then
+                    state.config.Spells.DoT11 = newTextDoT11
+                end
+                
 
                 ImGui.Text("DPS Click 2:")
                 ImGui.SameLine()

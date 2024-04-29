@@ -95,20 +95,20 @@ local function doDebuffs()
             queueAbility(debuffs.aamalo,'alt',tar.ID(),'debuff')
             return
 
-        elseif tostring(state.config.Shaman.UnresMalo) == 'On' or (tostring(state.config.Shaman.UnresMalo) == 'Named' and mq.TLO.Target.Named()) and not hasmalo then
+        elseif tostring(state.config.Shaman.UnresMalo) == 'On' or (tostring(state.config.Shaman.UnresMalo) == 'Named' and mq.TLO.Target.Named()) and not hasmalo and debuffs.unresmalo then
             queueAbility(debuffs.unresmalo,"spell",tar.ID(),'debuff')
             return
 
-        elseif not hasmalo or hasmalo and mq.TLO.Target.Maloed.ID() ~= mq.TLO.Spell(mq.TLO.Spell(debuffs.malo).RankName()).ID() then 
+        elseif not hasmalo or hasmalo and mq.TLO.Target.Maloed.ID() ~= mq.TLO.Spell(mq.TLO.Spell(debuffs.malo).RankName()).ID() and debuffs.malo then 
             queueAbility(debuffs.malo,"spell",tar.ID(),'debuff')
             return
         end
     elseif not hascripple then
-        if (not hascripple or (hascripple and mq.TLO.Target.Crippled.ID() ~= mq.TLO.Spell(mq.TLO.Spell(debuffs.feralize).RankName()).ID())) and ((tostring(state.config.Shaman.Feralize) == 'On' or (tostring(state.config.Shaman.Feralize) == 'Named' and tar.Named()))) and (tar.Body.ID() == 1 or tar.Body.Name() == 'Giant' or tar.Body.Name() == 'Animal') then
+        if (not hascripple or (hascripple and mq.TLO.Target.Crippled.ID() ~= mq.TLO.Spell(mq.TLO.Spell(debuffs.feralize).RankName()).ID())) and ((tostring(state.config.Shaman.Feralize) == 'On' or (tostring(state.config.Shaman.Feralize) == 'Named' and tar.Named()))) and (tar.Body.ID() == 1 or tar.Body.Name() == 'Giant' or tar.Body.Name() == 'Animal') and debuffs.feralize then
             queueAbility(debuffs.feralize,"spell",tar.ID(),'debuff')
             return
 
-        elseif (tostring(state.config.Shaman.Cripple) == 'On' or (tostring(state.config.Shaman.Cripple) == 'Named' and mq.TLO.Target.Named())) then
+        elseif (tostring(state.config.Shaman.Cripple) == 'On' or (tostring(state.config.Shaman.Cripple) == 'Named' and mq.TLO.Target.Named())) and debuffs.cripple then
             queueAbility(debuffs.cripple,"spell",tar.ID(),'debuff')
             return
 

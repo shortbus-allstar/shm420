@@ -18,7 +18,14 @@ local function getspells()
     dot1 = mq.TLO.Spell(tostring(state.config.Spells.DoT1)).RankName,
     dot2 = mq.TLO.Spell(tostring(state.config.Spells.DoT2)).RankName,
     dot3 = mq.TLO.Spell(tostring(state.config.Spells.DoT3)).RankName,
-    dot4 = mq.TLO.Spell(tostring(state.config.Spells.DoT4)).RankName
+    dot4 = mq.TLO.Spell(tostring(state.config.Spells.DoT4)).RankName,
+    dot5 = mq.TLO.Spell(tostring(state.config.Spells.DoT1)).RankName,
+    dot6 = mq.TLO.Spell(tostring(state.config.Spells.DoT2)).RankName,
+    dot7 = mq.TLO.Spell(tostring(state.config.Spells.DoT3)).RankName,
+    dot8 = mq.TLO.Spell(tostring(state.config.Spells.DoT1)).RankName,
+    dot9 = mq.TLO.Spell(tostring(state.config.Spells.DoT1)).RankName,
+    dot10 = mq.TLO.Spell(tostring(state.config.Spells.DoT2)).RankName,
+    dot11= mq.TLO.Spell(tostring(state.config.Spells.DoT3)).RankName,
     }   
     return DDs, DoTs
 end
@@ -84,6 +91,27 @@ function M.whichdpsspell()
         elseif not mq.TLO.Target.MyBuff(DoTs.dot4())() and mq.TLO.Cast.Ready(DoTs.dot4())() then
             queueAbility(DoTs.dot4.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DoT')
             return
+        elseif not mq.TLO.Target.MyBuff(DoTs.dot5())() and mq.TLO.Cast.Ready(DoTs.dot5())() then
+            queueAbility(DoTs.dot5.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DoT')
+            return
+        elseif not mq.TLO.Target.MyBuff(DoTs.dot6())() and mq.TLO.Cast.Ready(DoTs.dot6())() then
+            queueAbility(DoTs.dot6.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DoT')
+            return
+        elseif not mq.TLO.Target.MyBuff(DoTs.dot7())() and mq.TLO.Cast.Ready(DoTs.dot7())() then
+            queueAbility(DoTs.dot7.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DoT')
+            return
+        elseif not mq.TLO.Target.MyBuff(DoTs.dot8())() and mq.TLO.Cast.Ready(DoTs.dot8())() then
+            queueAbility(DoTs.dot8.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DoT')
+            return
+        elseif not mq.TLO.Target.MyBuff(DoTs.dot9())() and mq.TLO.Cast.Ready(DoTs.dot9())() then
+            queueAbility(DoTs.dot9.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DoT')
+            return
+        elseif not mq.TLO.Target.MyBuff(DoTs.dot10())() and mq.TLO.Cast.Ready(DoTs.dot10())() then
+            queueAbility(DoTs.dot10.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DoT')
+            return
+        elseif not mq.TLO.Target.MyBuff(DoTs.dot11())() and mq.TLO.Cast.Ready(DoTs.dot11())() then
+            queueAbility(DoTs.dot11.ID(),'spell',mq.TLO.Me.GroupAssistTarget.ID(),'DoT')
+            return
         elseif not mq.TLO.Me.Gem(DoTs.dot1())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot1())() and DoTs.dot1() then
             M.addtoQueue(DoTs.dot1(),type)
             return
@@ -95,6 +123,27 @@ function M.whichdpsspell()
             return
         elseif not mq.TLO.Me.Gem(DoTs.dot4())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot4())() and DoTs.dot4() then
             M.addtoQueue(DoTs.dot4(),type)
+            return
+        elseif not mq.TLO.Me.Gem(DoTs.dot5())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot5())() and DoTs.dot5() then
+            M.addtoQueue(DoTs.dot5(),type)
+            return
+        elseif not mq.TLO.Me.Gem(DoTs.dot6())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot6())() and DoTs.dot6() then
+            M.addtoQueue(DoTs.dot6(),type)
+            return
+        elseif not mq.TLO.Me.Gem(DoTs.dot7())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot7())() and DoTs.dot7() then
+            M.addtoQueue(DoTs.dot7(),type)
+            return
+        elseif not mq.TLO.Me.Gem(DoTs.dot8())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot8())() and DoTs.dot8() then
+            M.addtoQueue(DoTs.dot8(),type)
+            return
+        elseif not mq.TLO.Me.Gem(DoTs.dot9())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot9())() and DoTs.dot9() then
+            M.addtoQueue(DoTs.dot9(),type)
+            return
+        elseif not mq.TLO.Me.Gem(DoTs.dot10())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot10())() and DoTs.dot10() then
+            M.addtoQueue(DoTs.dot10(),type)
+            return
+        elseif not mq.TLO.Me.Gem(DoTs.dot11())() and state.canmem == true and not mq.TLO.Target.MyBuff(DoTs.dot11())() and DoTs.dot11() then
+            M.addtoQueue(DoTs.dot11(),type)
             return
         end
     end
