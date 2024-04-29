@@ -1,3 +1,10 @@
+**Patch Notes - v2.1.5-beta**
+1. Bug Fixes
+2. Added more DoT slots
+
+**Patch Notes - v2.1.4-beta**
+1. Bug Fixes
+
 **Patch Notes - v2.1.3-beta**
 1. Added custom UI themes
    
